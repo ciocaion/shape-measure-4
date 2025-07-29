@@ -62,10 +62,10 @@ const AreaCountingExercise: React.FC<AreaCountingExerciseProps> = ({ onComplete 
         grid.push(
           <div
             key={squareId}
-            className={`w-12 h-12 border border-grade-border-gray cursor-pointer transition-all duration-200 ${
+            className={`w-8 h-8 sm:w-10 sm:h-10 border border-grade-border-gray cursor-pointer transition-all duration-200 ${
               isShape 
                 ? isClicked 
-                  ? 'bg-grade-purple text-white font-bold text-lg flex items-center justify-center' 
+                  ? 'bg-grade-purple text-white font-bold text-sm flex items-center justify-center' 
                   : 'bg-grade-orange/30 hover:bg-grade-orange/50'
                 : 'bg-grade-input-gray'
             }`}
@@ -82,39 +82,39 @@ const AreaCountingExercise: React.FC<AreaCountingExerciseProps> = ({ onComplete 
   };
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center p-4">
-      <div className="bg-grade-soft-white rounded-[20px] p-6 border-2 border-grade-black max-w-4xl w-full">
-        <h2 className="font-space font-bold text-2xl text-grade-black mb-4 text-center">
+    <div className="flex-1 flex flex-col items-center justify-center p-2">
+      <div className="bg-grade-soft-white rounded-[15px] p-4 border-3 border-grade-black max-w-3xl w-full">
+        <h2 className="font-space font-bold text-lg sm:text-xl text-grade-black mb-3 text-center">
           Exercise 1: What's the Area?
         </h2>
         
-        <p className="text-grade-black font-dm text-lg mb-6 text-center">
+        <p className="text-grade-black font-dm text-base mb-4 text-center">
           How many squares fit inside this orange shape? Click each square to count!
         </p>
 
-        <div className="flex flex-col items-center space-y-6">
+        <div className="flex flex-col items-center space-y-4">
           {/* Grid */}
-          <div className="grid grid-cols-6 gap-1 p-4 bg-grade-input-gray rounded-[15px] border-2 border-grade-border-gray">
+          <div className="grid grid-cols-6 gap-0.5 p-3 bg-grade-input-gray rounded-[12px] border-3 border-grade-border-gray">
             {renderGrid()}
           </div>
 
           {/* Count Display */}
           <div className="text-center">
-            <div className="text-2xl font-dm font-bold text-grade-purple mb-2">
+            <div className="text-lg sm:text-xl font-dm font-bold text-grade-purple mb-2">
               Counted: {clickedSquares.size} squares
             </div>
           </div>
 
           {/* Answer Options */}
-          <div className="flex gap-4">
+          <div className="flex gap-2 sm:gap-3">
             {[9, 10, 12].map((option) => (
               <button
                 key={option}
                 onClick={() => handleAnswerSelect(option)}
-                className={`px-6 py-3 rounded-[15px] font-dm font-bold text-lg transition-all duration-200 ${
+                className={`px-4 py-2 rounded-[12px] font-dm font-bold text-base transition-all duration-200 touch-target ${
                   selectedAnswer === option
                     ? 'bg-grade-purple text-white'
-                    : 'bg-white border-2 border-grade-purple text-grade-purple hover:bg-grade-purple/10'
+                    : 'bg-white border-3 border-grade-purple text-grade-purple hover:bg-grade-purple/10'
                 }`}
               >
                 {option}
@@ -126,7 +126,7 @@ const AreaCountingExercise: React.FC<AreaCountingExerciseProps> = ({ onComplete 
           <button
             onClick={handleSubmit}
             disabled={selectedAnswer === null}
-            className={`px-8 py-4 rounded-[15px] font-dm font-bold text-lg transition-all duration-200 ${
+            className={`px-6 py-3 rounded-[12px] font-dm font-bold text-base transition-all duration-200 touch-target ${
               selectedAnswer !== null
                 ? 'bg-grade-orange text-white hover:scale-105'
                 : 'bg-grade-border-gray text-grade-black/50 cursor-not-allowed'
@@ -139,11 +139,11 @@ const AreaCountingExercise: React.FC<AreaCountingExerciseProps> = ({ onComplete 
           {hasSubmitted && (
             <div className="text-center">
               {selectedAnswer === 12 ? (
-                <div className="text-2xl font-dm font-bold text-green-600">
+                <div className="text-lg sm:text-xl font-dm font-bold text-green-600">
                   ✅ Correct! 12 squares = 12 cm²!
                 </div>
               ) : (
-                <div className="text-2xl font-dm font-bold text-red-600">
+                <div className="text-lg sm:text-xl font-dm font-bold text-red-600">
                   ❌ Try again! Count each square carefully.
                 </div>
               )}

@@ -23,17 +23,17 @@ const SuccessAnimation: React.FC<SuccessAnimationProps> = ({ show, onComplete })
         {Array.from({ length: 12 }).map((_, i) => (
           <div
             key={i}
-            className="absolute w-3 h-3 bg-grade-orange rounded-full animate-confetti"
+            className="absolute w-2 h-2 bg-grade-orange rounded-full animate-confetti"
             style={{
-              left: `${Math.cos(i * 30 * Math.PI / 180) * 100}px`,
-              top: `${Math.sin(i * 30 * Math.PI / 180) * 100}px`,
+              left: `${Math.cos(i * 30 * Math.PI / 180) * 80}px`,
+              top: `${Math.sin(i * 30 * Math.PI / 180) * 80}px`,
               animationDelay: `${i * 0.1}s`
             }}
           />
         ))}
         
         {/* Success message */}
-        <div className="bg-gradient-to-r from-grade-purple to-grade-blue text-white px-8 py-4 rounded-[20px] font-space font-bold text-2xl animate-bounce-gentle border-b-[6px] border-purple-800">
+        <div className="bg-gradient-to-r from-grade-purple to-grade-blue text-white px-6 py-3 rounded-[15px] font-space font-bold text-lg sm:text-xl animate-bounce-gentle border-b-[4px] border-purple-800">
           🎉 Great Job! 🎉
         </div>
       </div>

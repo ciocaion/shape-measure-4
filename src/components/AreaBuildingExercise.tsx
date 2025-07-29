@@ -56,7 +56,7 @@ const AreaBuildingExercise: React.FC<AreaBuildingExerciseProps> = ({ onComplete 
         grid.push(
           <div
             key={squareId}
-            className={`w-14 h-14 border-2 border-grade-border-gray cursor-pointer transition-all duration-200 ${
+            className={`w-8 h-8 sm:w-10 sm:h-10 border-3 border-grade-border-gray cursor-pointer transition-all duration-200 touch-target ${
               isPlaced 
                 ? 'bg-grade-purple hover:bg-grade-purple/80'
                 : 'bg-white hover:bg-grade-input-gray'
@@ -70,28 +70,28 @@ const AreaBuildingExercise: React.FC<AreaBuildingExerciseProps> = ({ onComplete 
   };
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center p-4">
-      <div className="bg-grade-soft-white rounded-[20px] p-6 border-2 border-grade-black max-w-4xl w-full">
-        <h2 className="font-space font-bold text-2xl text-grade-black mb-4 text-center">
+    <div className="flex-1 flex flex-col items-center justify-center p-2">
+      <div className="bg-grade-soft-white rounded-[15px] p-4 border-3 border-grade-black max-w-3xl w-full">
+        <h2 className="font-space font-bold text-lg sm:text-xl text-grade-black mb-3 text-center">
           Exercise 2: Build a Shape with Area = 10 cm²
         </h2>
         
-        <p className="text-grade-black font-dm text-lg mb-6 text-center">
+        <p className="text-grade-black font-dm text-base mb-4 text-center">
           Click squares to place blocks. Build any shape with exactly 10 squares!
         </p>
 
-        <div className="flex flex-col items-center space-y-6">
+        <div className="flex flex-col items-center compact-spacing">
           {/* Grid */}
-          <div className="grid grid-cols-5 gap-1 p-4 bg-grade-input-gray rounded-[15px] border-2 border-grade-border-gray">
+          <div className="grid grid-cols-5 gap-0.5 p-3 bg-grade-input-gray rounded-[12px] border-3 border-grade-border-gray">
             {renderGrid()}
           </div>
 
-          {/* Area Counter */}
+          {/* Current Area Display */}
           <div className="text-center">
-            <div className="text-3xl font-dm font-bold text-grade-purple mb-2">
+            <div className="text-lg sm:text-xl font-dm font-bold text-grade-purple mb-2">
               Current Area: {placedSquares.size} cm²
             </div>
-            <div className="text-lg font-dm text-grade-black">
+            <div className="text-sm text-grade-black/70">
               Target: 10 cm²
             </div>
           </div>
@@ -99,20 +99,15 @@ const AreaBuildingExercise: React.FC<AreaBuildingExerciseProps> = ({ onComplete 
           {/* Check Button */}
           <button
             onClick={handleCheck}
-            disabled={placedSquares.size === 0}
-            className={`px-8 py-4 rounded-[15px] font-dm font-bold text-lg transition-all duration-200 ${
-              placedSquares.size > 0
-                ? 'bg-grade-orange text-white hover:scale-105'
-                : 'bg-grade-border-gray text-grade-black/50 cursor-not-allowed'
-            }`}
+            className="bg-grade-orange text-white px-6 py-3 rounded-[12px] font-dm font-bold text-base hover:scale-105 transition-transform touch-target"
           >
-            Check My Shape
+            Check Area
           </button>
 
           {/* Feedback */}
           {feedback && (
             <div className="text-center">
-              <div className="text-2xl font-dm font-bold">
+              <div className="text-lg sm:text-xl font-dm font-bold text-grade-black">
                 {feedback}
               </div>
             </div>

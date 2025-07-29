@@ -73,20 +73,26 @@ const PerimeterTracingExercise: React.FC<PerimeterTracingExerciseProps> = ({ onC
         grid.push(
           <div
             key={squareId}
-            className={`w-12 h-12 border border-grade-border-gray cursor-pointer transition-all duration-200 relative ${
+            className={`w-8 h-8 sm:w-10 sm:h-10 border border-grade-border-gray cursor-pointer transition-all duration-200 relative ${
               isShape 
                 ? isTraced 
-                  ? 'bg-grade-orange text-white font-bold text-sm flex items-center justify-center' 
+                  ? 'bg-grade-orange text-white font-bold text-xs flex items-center justify-center' 
                   : 'bg-grade-blue/30 hover:bg-grade-blue/50'
                 : 'bg-grade-input-gray'
             }`}
             onClick={() => isShape && handleSquareClick(squareId)}
           >
-            {isShape && isTraced && (
-              <div className="absolute inset-0 border-4 border-grade-orange rounded-sm" />
-            )}
-            {isShape && isPerimeter && (
-              <div className="absolute inset-1 border-2 border-grade-purple/50 rounded-sm animate-pulse" />
+            {isShape && isTraced && tracedSquares.has(squareId) && 
+              Array.from(tracedSquares).indexOf(squareId) + 1
+            }
+            {/* Visual indicator for perimeter edges */}
+            {isShape && (
+              <>
+                {(row === 2) && <div className="absolute -top-0.5 left-0 right-0 h-0.5 bg-grade-orange"></div>}
+                {(row === 3) && <div className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-grade-orange"></div>}
+                {(col === 2) && <div className="absolute -left-0.5 top-0 bottom-0 w-0.5 bg-grade-orange"></div>}
+                {(col === 4) && <div className="absolute -right-0.5 top-0 bottom-0 w-0.5 bg-grade-orange"></div>}
+              </>
             )}
           </div>
         );
@@ -96,42 +102,42 @@ const PerimeterTracingExercise: React.FC<PerimeterTracingExerciseProps> = ({ onC
   };
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center p-4">
-      <div className="bg-grade-soft-white rounded-[20px] p-6 border-2 border-grade-black max-w-4xl w-full">
-        <h2 className="font-space font-bold text-2xl text-grade-black mb-4 text-center">
-          Exercise 3: What's the Perimeter?
+    <div className="flex-1 flex flex-col items-center justify-center p-2">
+      <div className="bg-grade-soft-white rounded-[15px] p-4 border-3 border-grade-black max-w-3xl w-full">
+        <h2 className="font-space font-bold text-lg sm:text-xl text-grade-black mb-3 text-center">
+          Exercise 3: Trace the Perimeter
         </h2>
         
-        <p className="text-grade-black font-dm text-lg mb-6 text-center">
-          Click on the outer edge squares to trace the perimeter!
+        <p className="text-grade-black font-dm text-base mb-4 text-center">
+          Click the squares along the edge (perimeter) of the blue shape!
         </p>
 
-        <div className="flex flex-col items-center space-y-6">
+        <div className="flex flex-col items-center compact-spacing">
           {/* Grid */}
-          <div className="grid grid-cols-6 gap-1 p-4 bg-grade-input-gray rounded-[15px] border-2 border-grade-border-gray">
+          <div className="grid grid-cols-6 gap-0.5 p-3 bg-grade-input-gray rounded-[12px] border-3 border-grade-border-gray">
             {renderGrid()}
           </div>
 
-          {/* Traced Count */}
+          {/* Count Display */}
           <div className="text-center">
-            <div className="text-2xl font-dm font-bold text-grade-orange mb-2">
-              You traced: {tracedSquares.size} units
+            <div className="text-lg sm:text-xl font-dm font-bold text-grade-purple mb-2">
+              Traced: {tracedSquares.size} edge units
             </div>
           </div>
 
           {/* Answer Options */}
-          <div className="flex gap-4">
+          <div className="flex gap-2 sm:gap-3">
             {[8, 10, 12].map((option) => (
               <button
                 key={option}
                 onClick={() => handleAnswerSelect(option)}
-                className={`px-6 py-3 rounded-[15px] font-dm font-bold text-lg transition-all duration-200 ${
+                className={`px-4 py-2 rounded-[12px] font-dm font-bold text-base transition-all duration-200 touch-target ${
                   selectedAnswer === option
                     ? 'bg-grade-purple text-white'
-                    : 'bg-white border-2 border-grade-purple text-grade-purple hover:bg-grade-purple/10'
+                    : 'bg-white border-3 border-grade-purple text-grade-purple hover:bg-grade-purple/10'
                 }`}
               >
-                {option}
+                {option} units
               </button>
             ))}
           </div>
@@ -140,7 +146,7 @@ const PerimeterTracingExercise: React.FC<PerimeterTracingExerciseProps> = ({ onC
           <button
             onClick={handleSubmit}
             disabled={selectedAnswer === null}
-            className={`px-8 py-4 rounded-[15px] font-dm font-bold text-lg transition-all duration-200 ${
+            className={`px-6 py-3 rounded-[12px] font-dm font-bold text-base transition-all duration-200 touch-target ${
               selectedAnswer !== null
                 ? 'bg-grade-orange text-white hover:scale-105'
                 : 'bg-grade-border-gray text-grade-black/50 cursor-not-allowed'
@@ -153,12 +159,12 @@ const PerimeterTracingExercise: React.FC<PerimeterTracingExerciseProps> = ({ onC
           {hasSubmitted && (
             <div className="text-center">
               {selectedAnswer === correctPerimeter ? (
-                <div className="text-2xl font-dm font-bold text-green-600">
-                  ✅ Perfect! Perimeter is 10 units!
+                <div className="text-lg sm:text-xl font-dm font-bold text-green-600">
+                  ✅ Correct! Perimeter = {correctPerimeter} units!
                 </div>
               ) : (
-                <div className="text-2xl font-dm font-bold text-red-600">
-                  ❌ Try again! Trace the outer edge carefully.
+                <div className="text-lg sm:text-xl font-dm font-bold text-red-600">
+                  ❌ Try again! Trace the edges carefully.
                 </div>
               )}
             </div>

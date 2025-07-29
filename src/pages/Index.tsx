@@ -88,28 +88,28 @@ const Index = () => {
   }, []);
 
   const renderCompletionScreen = () => (
-    <div className="flex-1 flex items-center justify-center p-4">
-      <div className="bg-grade-soft-white rounded-[20px] p-6 border-2 border-grade-purple max-w-md w-full text-center">
-        <h2 className="font-space font-bold text-2xl text-grade-black mb-4">
+    <div className="flex-1 flex items-center justify-center p-2">
+      <div className="bg-grade-soft-white rounded-[15px] p-4 border-3 border-grade-purple max-w-sm w-full text-center">
+        <h2 className="font-space font-bold text-lg sm:text-xl text-grade-black mb-3">
           🎉 Shape Lab Master! 🎉
         </h2>
         
-        <div className="space-y-3 mb-6">
-          <div className="bg-gradient-to-r from-grade-orange to-grade-purple text-white p-3 rounded-[15px] font-dm font-bold">
+        <div className="space-y-2 mb-4">
+          <div className="bg-gradient-to-r from-grade-orange to-grade-purple text-white p-2 rounded-[12px] font-dm font-bold text-sm">
             📏 Area Expert
           </div>
-          <div className="bg-gradient-to-r from-grade-blue to-grade-purple text-white p-3 rounded-[15px] font-dm font-bold">
+          <div className="bg-gradient-to-r from-grade-blue to-grade-purple text-white p-2 rounded-[12px] font-dm font-bold text-sm">
             🔍 Perimeter Pro
           </div>
         </div>
 
-        <div className="text-lg font-dm font-bold text-grade-black mb-6">
+        <div className="text-base font-dm font-bold text-grade-black mb-4">
           You've mastered measuring shapes! 🧠✨
         </div>
 
         <button
           onClick={() => setGameState(prev => ({ ...prev, currentExercise: 1, showSuccess: false }))}
-          className="bg-grade-orange text-white px-6 py-3 rounded-[15px] font-dm font-bold text-lg hover:scale-105 transition-transform"
+          className="bg-grade-orange text-white px-4 py-2 rounded-[12px] font-dm font-bold text-base hover:scale-105 transition-transform touch-target"
         >
           🔄 Practice Again
         </button>
@@ -143,26 +143,26 @@ const Index = () => {
                       gameState.exercise5.completed;
 
   return (
-    <div className="min-h-screen max-h-screen bg-gradient-to-br from-grade-soft-white via-purple-50 to-blue-50 font-dm overflow-hidden">
-      <div className="max-w-6xl mx-auto h-full flex flex-col p-4">
-        <div className="text-center mb-4">
-          <h1 className="font-space font-bold text-3xl text-grade-black mb-2">
+    <div className="h-screen bg-gradient-to-br from-grade-soft-white via-purple-50 to-blue-50 font-dm overflow-hidden">
+      <div className="max-w-5xl mx-auto h-full flex flex-col p-2 sm:p-3">
+        <div className="text-center mb-3">
+          <h1 className="font-space font-bold text-xl sm:text-2xl text-grade-black mb-1">
             📐 Shape Lab: Measure & Master!
           </h1>
-          <p className="text-grade-black/70 font-dm text-lg">Learn area & perimeter through discovery!</p>
+          <p className="text-grade-black/70 font-dm text-base">Learn area & perimeter through discovery!</p>
         </div>
 
-        <div className="mb-4">
+        <div className="mb-3">
           <RobotHelper message={gameState.robotMessage} isExcited={gameState.isRobotExcited} />
         </div>
 
         {/* Progress indicator */}
-        <div className="flex justify-center mb-4">
-          <div className="flex gap-3">
+        <div className="flex justify-center mb-3">
+          <div className="flex gap-2">
             {[1, 2, 3, 4, 5].map((exercise) => (
               <div
                 key={exercise}
-                className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-lg transition-all duration-300 ${
+                className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center font-bold text-sm sm:text-base transition-all duration-300 ${
                   exercise <= gameState.currentExercise 
                     ? 'bg-grade-purple text-white' 
                     : 'bg-grade-border-gray text-grade-black/50'
@@ -174,7 +174,7 @@ const Index = () => {
           </div>
         </div>
 
-        <div className="flex-1 min-h-0">
+        <div className="flex-1 min-h-0 overflow-auto">
           {allCompleted && !gameState.showSuccess ? renderCompletionScreen() : renderCurrentExercise()}
         </div>
 

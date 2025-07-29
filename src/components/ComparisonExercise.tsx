@@ -58,9 +58,9 @@ const ComparisonExercise: React.FC<ComparisonExerciseProps> = ({ onComplete }) =
         grid.push(
           <div
             key={squareId}
-            className={`w-10 h-10 border border-grade-border-gray ${
+            className={`w-6 h-6 sm:w-8 sm:h-8 border border-grade-border-gray ${
               isShape 
-                ? 'bg-grade-blue text-white font-bold text-sm flex items-center justify-center' 
+                ? 'bg-grade-blue text-white font-bold text-xs flex items-center justify-center' 
                 : 'bg-grade-input-gray'
             }`}
           >
@@ -82,9 +82,9 @@ const ComparisonExercise: React.FC<ComparisonExerciseProps> = ({ onComplete }) =
         grid.push(
           <div
             key={squareId}
-            className={`w-10 h-10 border border-grade-border-gray ${
+            className={`w-6 h-6 sm:w-8 sm:h-8 border border-grade-border-gray ${
               isShape 
-                ? 'bg-grade-orange text-white font-bold text-sm flex items-center justify-center' 
+                ? 'bg-grade-orange text-white font-bold text-xs flex items-center justify-center' 
                 : 'bg-grade-input-gray'
             }`}
           >
@@ -97,73 +97,79 @@ const ComparisonExercise: React.FC<ComparisonExerciseProps> = ({ onComplete }) =
   };
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center p-4">
-      <div className="bg-grade-soft-white rounded-[20px] p-6 border-2 border-grade-black max-w-5xl w-full">
-        <h2 className="font-space font-bold text-2xl text-grade-black mb-4 text-center">
-          Exercise 4: Compare Two Shapes
+    <div className="flex-1 flex flex-col items-center justify-center p-2">
+      <div className="bg-grade-soft-white rounded-[15px] p-4 border-3 border-grade-black max-w-4xl w-full">
+        <h2 className="font-space font-bold text-lg sm:text-xl text-grade-black mb-3 text-center">
+          Exercise 4: Compare the Shapes
         </h2>
         
-        <p className="text-grade-black font-dm text-lg mb-6 text-center">
-          Do these shapes have the same area or the same perimeter?
+        <p className="text-grade-black font-dm text-base mb-4 text-center">
+          Which property is the same for both shapes?
         </p>
 
-        <div className="flex flex-col items-center space-y-6">
-          {/* Two Shapes Side by Side */}
-          <div className="flex gap-8 justify-center">
+        <div className="flex flex-col items-center compact-spacing">
+          {/* Shapes Display */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 w-full">
             {/* Shape 1 */}
             <div className="text-center">
-              <h3 className="font-dm font-bold text-lg text-grade-black mb-2">Shape 1</h3>
-              <div className="grid grid-cols-4 gap-1 p-3 bg-grade-input-gray rounded-[15px] border-2 border-grade-border-gray">
-                {renderShape1()}
-              </div>
-              {showProof && (
-                <div className="mt-2 text-sm font-dm font-bold text-grade-blue">
-                  Area: 12 squares
+              <h3 className="font-dm font-bold text-base text-grade-black mb-2">Shape A</h3>
+              <div className="flex justify-center">
+                <div className="grid grid-cols-4 gap-0.5 p-2 bg-grade-input-gray rounded-[12px] border-3 border-grade-border-gray">
+                  {renderShape1()}
                 </div>
-              )}
+              </div>
             </div>
 
             {/* Shape 2 */}
             <div className="text-center">
-              <h3 className="font-dm font-bold text-lg text-grade-black mb-2">Shape 2</h3>
-              <div className="grid grid-cols-5 gap-1 p-3 bg-grade-input-gray rounded-[15px] border-2 border-grade-border-gray">
-                {renderShape2()}
-              </div>
-              {showProof && (
-                <div className="mt-2 text-sm font-dm font-bold text-grade-orange">
-                  Area: 12 squares
+              <h3 className="font-dm font-bold text-base text-grade-black mb-2">Shape B</h3>
+              <div className="flex justify-center">
+                <div className="grid grid-cols-5 gap-0.5 p-2 bg-grade-input-gray rounded-[12px] border-3 border-grade-border-gray">
+                  {renderShape2()}
                 </div>
-              )}
+              </div>
             </div>
           </div>
 
           {/* Answer Options */}
-          <div className="flex gap-4">
-            {[
-              { key: 'area', label: '🟦 Same Area', color: 'bg-grade-blue' },
-              { key: 'perimeter', label: '🟨 Same Perimeter', color: 'bg-grade-orange' },
-              { key: 'both', label: '🟩 Both Same', color: 'bg-green-500' },
-              { key: 'neither', label: '❌ Neither', color: 'bg-red-500' }
-            ].map((option) => (
-              <button
-                key={option.key}
-                onClick={() => handleAnswerSelect(option.key)}
-                className={`px-4 py-3 rounded-[15px] font-dm font-bold text-lg transition-all duration-200 ${
-                  selectedAnswer === option.key
-                    ? `${option.color} text-white`
-                    : 'bg-white border-2 border-grade-purple text-grade-purple hover:bg-grade-purple/10'
-                }`}
-              >
-                {option.label}
-              </button>
-            ))}
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full max-w-lg">
+            <button
+              onClick={() => handleAnswerSelect('area')}
+              className={`px-4 py-2 rounded-[12px] font-dm font-bold text-base transition-all duration-200 touch-target ${
+                selectedAnswer === 'area'
+                  ? 'bg-grade-purple text-white'
+                  : 'bg-white border-3 border-grade-purple text-grade-purple hover:bg-grade-purple/10'
+              }`}
+            >
+              Same Area
+            </button>
+            <button
+              onClick={() => handleAnswerSelect('perimeter')}
+              className={`px-4 py-2 rounded-[12px] font-dm font-bold text-base transition-all duration-200 touch-target ${
+                selectedAnswer === 'perimeter'
+                  ? 'bg-grade-purple text-white'
+                  : 'bg-white border-3 border-grade-purple text-grade-purple hover:bg-grade-purple/10'
+              }`}
+            >
+              Same Perimeter
+            </button>
+            <button
+              onClick={() => handleAnswerSelect('neither')}
+              className={`px-4 py-2 rounded-[12px] font-dm font-bold text-base transition-all duration-200 touch-target ${
+                selectedAnswer === 'neither'
+                  ? 'bg-grade-purple text-white'
+                  : 'bg-white border-3 border-grade-purple text-grade-purple hover:bg-grade-purple/10'
+              }`}
+            >
+              Nothing Same
+            </button>
           </div>
 
           {/* Submit Button */}
           <button
             onClick={handleSubmit}
             disabled={selectedAnswer === null}
-            className={`px-8 py-4 rounded-[15px] font-dm font-bold text-lg transition-all duration-200 ${
+            className={`px-6 py-3 rounded-[12px] font-dm font-bold text-base transition-all duration-200 touch-target ${
               selectedAnswer !== null
                 ? 'bg-grade-orange text-white hover:scale-105'
                 : 'bg-grade-border-gray text-grade-black/50 cursor-not-allowed'
@@ -176,12 +182,17 @@ const ComparisonExercise: React.FC<ComparisonExerciseProps> = ({ onComplete }) =
           {hasSubmitted && (
             <div className="text-center">
               {selectedAnswer === 'area' ? (
-                <div className="text-2xl font-dm font-bold text-green-600">
-                  ✅ Correct! Both shapes have the same area!
+                <div className="text-lg sm:text-xl font-dm font-bold text-green-600">
+                  ✅ Correct! Both shapes have the same area (12 squares)!
+                  {showProof && (
+                    <div className="text-sm text-grade-black mt-2">
+                      Count the numbered squares to verify! 🔢
+                    </div>
+                  )}
                 </div>
               ) : (
-                <div className="text-2xl font-dm font-bold text-red-600">
-                  ❌ Try again! Look at how many squares each shape contains.
+                <div className="text-lg sm:text-xl font-dm font-bold text-red-600">
+                  ❌ Try again! Think about area vs perimeter.
                 </div>
               )}
             </div>
