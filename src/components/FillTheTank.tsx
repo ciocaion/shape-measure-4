@@ -1,5 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface FillTheTankProps {
   onComplete: (score: number) => void;
@@ -49,6 +49,7 @@ const challenges: Challenge[] = [
 ];
 
 const FillTheTank: React.FC<FillTheTankProps> = ({ onComplete }) => {
+  const { t } = useTranslation();
   const [currentChallenge, setCurrentChallenge] = useState(0);
   const [score, setScore] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
@@ -56,6 +57,20 @@ const FillTheTank: React.FC<FillTheTankProps> = ({ onComplete }) => {
   const [isCorrect, setIsCorrect] = useState(false);
 
   const challenge = challenges[currentChallenge];
+
+  useEffect(() => {
+    // Send initial instruction
+    window.parent.postMessage({
+      type: 'tutorMessage',
+      messageType: 'instruction',
+      content: t('instructions.tank.instruction'),
+      data: { 
+        round: currentChallenge + 1, 
+        total: challenges.length,
+        question: challenge.question
+      }
+    }, '*');
+  }, [currentChallenge, t, challenge.question]);
 
   const handleAnswer = (answer: number) => {
     setSelectedAnswer(answer);
@@ -65,6 +80,28 @@ const FillTheTank: React.FC<FillTheTankProps> = ({ onComplete }) => {
     
     if (correct) {
       setScore(prev => prev + 1);
+      window.parent.postMessage({
+        type: 'tutorMessage',
+        messageType: 'success',
+        content: t('common.correct'),
+        data: { 
+          score: score + 1, 
+          total: challenges.length,
+          answer
+        }
+      }, '*');
+    } else {
+      window.parent.postMessage({
+        type: 'tutorMessage',
+        messageType: 'instruction',
+        content: t('common.incorrect'),
+        data: { 
+          score, 
+          total: challenges.length,
+          answer,
+          correctAnswer: challenge.correctAnswer
+        }
+      }, '*');
     }
 
     setTimeout(() => {
@@ -155,18 +192,7 @@ const FillTheTank: React.FC<FillTheTankProps> = ({ onComplete }) => {
   return (
     <div className="space-y-6">
       <div className="bg-grade-soft-white rounded-[20px] p-8 border-l-[10px] border-grade-orange">
-        <h2 className="font-space font-bold text-2xl text-grade-black mb-2 text-center">
-          🧃 Fill the Tank — L ↔ mL
-        </h2>
-        <p className="text-grade-black/70 font-dm text-lg text-center mb-6">
-          Round {currentChallenge + 1} of {challenges.length}
-        </p>
-        
         <div className="text-center mb-8">
-          <h3 className="font-dm font-bold text-xl text-grade-black mb-6">
-            {challenge.question}
-          </h3>
-          
           {renderTank()}
           {renderBottle()}
           
@@ -191,14 +217,6 @@ const FillTheTank: React.FC<FillTheTankProps> = ({ onComplete }) => {
             </div>
           )}
         </div>
-
-        {showFeedback && (
-          <div className={`text-center p-4 rounded-[15px] font-dm font-bold text-lg ${
-            isCorrect ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-          }`}>
-            {isCorrect ? '✅ Correct! Great job!' : '❌ Try again next time!'}
-          </div>
-        )}
       </div>
     </div>
   );

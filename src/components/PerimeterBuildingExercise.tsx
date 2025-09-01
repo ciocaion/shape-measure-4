@@ -1,14 +1,23 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface PerimeterBuildingExerciseProps {
   onComplete: (score: number) => void;
 }
 
 const PerimeterBuildingExercise: React.FC<PerimeterBuildingExerciseProps> = ({ onComplete }) => {
+  const { t } = useTranslation();
   const [placedSquares, setPlacedSquares] = useState<Set<string>>(new Set());
   const [hasSubmitted, setHasSubmitted] = useState(false);
-  const [feedback, setFeedback] = useState<string>('');
+
+  useEffect(() => {
+    window.parent.postMessage({
+      type: 'tutorMessage',
+      messageType: 'instruction',
+      content: t('instructions.perimeter.instruction'),
+      data: {}
+    }, '*');
+  }, [t]);
 
   const calculatePerimeter = (squares: Set<string>) => {
     if (squares.size === 0) return 0;
@@ -16,13 +25,11 @@ const PerimeterBuildingExercise: React.FC<PerimeterBuildingExerciseProps> = ({ o
     let perimeter = 0;
     squares.forEach(square => {
       const [col, row] = square.split(',').map(Number);
-      
-      // Check each side of the square
       const sides = [
-        [col, row - 1], // top
-        [col, row + 1], // bottom
-        [col - 1, row], // left
-        [col + 1, row]  // right
+        [col, row - 1],
+        [col, row + 1],
+        [col - 1, row],
+        [col + 1, row]
       ];
       
       sides.forEach(([adjCol, adjRow]) => {
@@ -53,22 +60,25 @@ const PerimeterBuildingExercise: React.FC<PerimeterBuildingExerciseProps> = ({ o
     setHasSubmitted(true);
     
     if (currentPerimeter === 14) {
-      setFeedback('✅ Perfect! Perimeter = 14 units!');
-      setTimeout(() => {
-        onComplete(100);
-      }, 1500);
-    } else if (currentPerimeter < 14) {
-      setFeedback(`❌ Too small! You have ${currentPerimeter} units. Need ${14 - currentPerimeter} more.`);
-      setTimeout(() => {
-        setHasSubmitted(false);
-        setFeedback('');
-      }, 2500);
+      window.parent.postMessage({
+        type: 'tutorMessage',
+        messageType: 'success',
+        content: t('common.correct'),
+        data: { perimeter: currentPerimeter }
+      }, '*');
+      setTimeout(() => onComplete(100), 1500);
     } else {
-      setFeedback(`❌ Too big! You have ${currentPerimeter} units. Remove ${currentPerimeter - 14} units.`);
-      setTimeout(() => {
-        setHasSubmitted(false);
-        setFeedback('');
-      }, 2500);
+      window.parent.postMessage({
+        type: 'tutorMessage',
+        messageType: 'instruction',
+        content: t('common.incorrect') + ` ${t('instructions.perimeter.tip')}`,
+        data: { 
+          currentPerimeter,
+          target: 14,
+          difference: Math.abs(currentPerimeter - 14)
+        }
+      }, '*');
+      setTimeout(() => setHasSubmitted(false), 2500);
     }
   };
 
@@ -98,53 +108,19 @@ const PerimeterBuildingExercise: React.FC<PerimeterBuildingExerciseProps> = ({ o
   return (
     <div className="flex-1 flex flex-col items-center justify-center p-2">
       <div className="bg-grade-soft-white rounded-[15px] p-4 border-3 border-grade-black max-w-3xl w-full">
-        <h2 className="font-space font-bold text-lg sm:text-xl text-grade-black mb-3 text-center">
-          Exercise 5: Build with Perimeter = 14 units
-        </h2>
-        
-        <p className="text-grade-black font-dm text-base mb-4 text-center">
-          Create any connected shape with exactly 14 units of perimeter!
-        </p>
-
-        <div className="flex flex-col items-center compact-spacing">
-          {/* Grid */}
+        <div className="flex flex-col items-center gap-4">
           <div className="grid grid-cols-6 gap-0.5 p-3 bg-grade-input-gray rounded-[12px] border-3 border-grade-border-gray">
             {renderGrid()}
           </div>
-
-          {/* Current Perimeter Display */}
-          <div className="text-center">
-            <div className="text-lg sm:text-xl font-dm font-bold text-grade-purple mb-2">
-              Current Perimeter: {calculatePerimeter(placedSquares)} units
-            </div>
-            <div className="text-sm text-grade-black/70">
-              Target: 14 units
-            </div>
+          <div className="text-lg font-dm font-bold text-grade-purple">
+            {calculatePerimeter(placedSquares)} / 14
           </div>
-
-          {/* Check Button */}
           <button
             onClick={handleCheck}
             className="bg-grade-orange text-white px-6 py-3 rounded-[12px] font-dm font-bold text-base hover:scale-105 transition-transform touch-target"
           >
-            Check Perimeter
+            {t('common.submit')}
           </button>
-
-          {/* Feedback */}
-          {feedback && (
-            <div className="text-center">
-              <div className="text-lg sm:text-xl font-dm font-bold text-grade-black">
-                {feedback}
-              </div>
-            </div>
-          )}
-
-          {/* Help hint */}
-          <div className="text-center max-w-md">
-            <div className="text-xs text-grade-black/60 bg-grade-input-gray p-2 rounded-[10px]">
-              💡 Tip: Perimeter = outer edge length. Try different shapes!
-            </div>
-          </div>
         </div>
       </div>
     </div>

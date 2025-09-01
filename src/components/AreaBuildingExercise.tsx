@@ -1,14 +1,23 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface AreaBuildingExerciseProps {
   onComplete: (score: number) => void;
 }
 
 const AreaBuildingExercise: React.FC<AreaBuildingExerciseProps> = ({ onComplete }) => {
+  const { t } = useTranslation();
   const [placedSquares, setPlacedSquares] = useState<Set<string>>(new Set());
   const [hasSubmitted, setHasSubmitted] = useState(false);
-  const [feedback, setFeedback] = useState<string>('');
+
+  useEffect(() => {
+    window.parent.postMessage({
+      type: 'tutorMessage',
+      messageType: 'instruction',
+      content: t('instructions.area.instruction'),
+      data: {}
+    }, '*');
+  }, [t]);
 
   const handleSquareClick = (squareId: string) => {
     if (hasSubmitted) return;
@@ -27,22 +36,25 @@ const AreaBuildingExercise: React.FC<AreaBuildingExerciseProps> = ({ onComplete 
     setHasSubmitted(true);
     
     if (currentArea === 10) {
-      setFeedback('✅ Perfect! You built 10 cm²!');
-      setTimeout(() => {
-        onComplete(100);
-      }, 1500);
-    } else if (currentArea < 10) {
-      setFeedback(`❌ Too small! You need ${10 - currentArea} more squares.`);
-      setTimeout(() => {
-        setHasSubmitted(false);
-        setFeedback('');
-      }, 2000);
+      window.parent.postMessage({
+        type: 'tutorMessage',
+        messageType: 'success',
+        content: t('common.correct'),
+        data: { area: currentArea }
+      }, '*');
+      setTimeout(() => onComplete(100), 1500);
     } else {
-      setFeedback(`❌ Too big! Remove ${currentArea - 10} squares.`);
-      setTimeout(() => {
-        setHasSubmitted(false);
-        setFeedback('');
-      }, 2000);
+      window.parent.postMessage({
+        type: 'tutorMessage',
+        messageType: 'instruction',
+        content: t('common.incorrect') + ` ${t('instructions.area.tip')}`,
+        data: { 
+          currentArea,
+          target: 10,
+          difference: Math.abs(currentArea - 10)
+        }
+      }, '*');
+      setTimeout(() => setHasSubmitted(false), 2000);
     }
   };
 
@@ -72,46 +84,19 @@ const AreaBuildingExercise: React.FC<AreaBuildingExerciseProps> = ({ onComplete 
   return (
     <div className="flex-1 flex flex-col items-center justify-center p-2">
       <div className="bg-grade-soft-white rounded-[15px] p-4 border-3 border-grade-black max-w-3xl w-full">
-        <h2 className="font-space font-bold text-lg sm:text-xl text-grade-black mb-3 text-center">
-          Exercise 2: Build a Shape with Area = 10 cm²
-        </h2>
-        
-        <p className="text-grade-black font-dm text-base mb-4 text-center">
-          Click squares to place blocks. Build any shape with exactly 10 squares!
-        </p>
-
-        <div className="flex flex-col items-center compact-spacing">
-          {/* Grid */}
+        <div className="flex flex-col items-center gap-4">
           <div className="grid grid-cols-5 gap-0.5 p-3 bg-grade-input-gray rounded-[12px] border-3 border-grade-border-gray">
             {renderGrid()}
           </div>
-
-          {/* Current Area Display */}
-          <div className="text-center">
-            <div className="text-lg sm:text-xl font-dm font-bold text-grade-purple mb-2">
-              Current Area: {placedSquares.size} cm²
-            </div>
-            <div className="text-sm text-grade-black/70">
-              Target: 10 cm²
-            </div>
+          <div className="text-lg font-dm font-bold text-grade-purple">
+            {placedSquares.size} / 10
           </div>
-
-          {/* Check Button */}
           <button
             onClick={handleCheck}
             className="bg-grade-orange text-white px-6 py-3 rounded-[12px] font-dm font-bold text-base hover:scale-105 transition-transform touch-target"
           >
-            Check Area
+            {t('common.submit')}
           </button>
-
-          {/* Feedback */}
-          {feedback && (
-            <div className="text-center">
-              <div className="text-lg sm:text-xl font-dm font-bold text-grade-black">
-                {feedback}
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </div>

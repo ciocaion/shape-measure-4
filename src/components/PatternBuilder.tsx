@@ -1,5 +1,5 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface PatternBuilderProps {
   onComplete: (score: number) => void;
@@ -42,6 +42,7 @@ const challenges: PatternChallenge[] = [
 ];
 
 const PatternBuilder: React.FC<PatternBuilderProps> = ({ onComplete }) => {
+  const { t } = useTranslation();
   const [currentChallenge, setCurrentChallenge] = useState(0);
   const [score, setScore] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
@@ -50,6 +51,16 @@ const PatternBuilder: React.FC<PatternBuilderProps> = ({ onComplete }) => {
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
 
   const challenge = challenges[currentChallenge];
+
+  useEffect(() => {
+    // Send initial instruction
+    window.parent.postMessage({
+      type: 'tutorMessage',
+      messageType: 'instruction',
+      content: t('instructions.pattern.instruction'),
+      data: { round: currentChallenge + 1, total: challenges.length }
+    }, '*');
+  }, [currentChallenge, t]);
 
   const handleDragStart = (e: React.DragEvent, item: string) => {
     setDraggedItem(item);
@@ -77,6 +88,19 @@ const PatternBuilder: React.FC<PatternBuilderProps> = ({ onComplete }) => {
     
     if (correct) {
       setScore(prev => prev + 1);
+      window.parent.postMessage({
+        type: 'tutorMessage',
+        messageType: 'success',
+        content: t('instructions.pattern.success', { explanation: challenge.explanation }),
+        data: { score: score + 1, total: challenges.length }
+      }, '*');
+    } else {
+      window.parent.postMessage({
+        type: 'tutorMessage',
+        messageType: 'instruction',
+        content: t('instructions.pattern.error'),
+        data: { score, total: challenges.length }
+      }, '*');
     }
 
     setTimeout(() => {
@@ -124,18 +148,7 @@ const PatternBuilder: React.FC<PatternBuilderProps> = ({ onComplete }) => {
   return (
     <div className="h-full flex flex-col">
       <div className="bg-grade-soft-white rounded-[20px] p-6 border-l-[10px] border-grade-orange flex-1">
-        <h2 className="font-space font-bold text-2xl text-grade-black mb-2 text-center">
-          🧩 Pattern Builder
-        </h2>
-        <p className="text-grade-black/70 font-dm text-lg text-center mb-4">
-          Round {currentChallenge + 1} of {challenges.length}
-        </p>
-        
         <div className="text-center mb-6">
-          <h3 className="font-dm font-bold text-xl text-grade-black mb-6">
-            Drag the missing piece to complete the pattern!
-          </h3>
-          
           {renderPattern()}
           
           <div className="flex justify-center gap-4">
@@ -158,14 +171,6 @@ const PatternBuilder: React.FC<PatternBuilderProps> = ({ onComplete }) => {
             ))}
           </div>
         </div>
-
-        {showFeedback && (
-          <div className={`text-center p-4 rounded-[15px] font-dm font-bold text-lg ${
-            isCorrect ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-          }`}>
-            {isCorrect ? `✅ Pattern Complete! ${challenge.explanation}` : '❌ Try again! Look for the pattern!'}
-          </div>
-        )}
       </div>
     </div>
   );

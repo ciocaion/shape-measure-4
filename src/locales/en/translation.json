@@ -1,0 +1,42 @@
+{
+  "common": {
+    "success": "Success!",
+    "error": "Error",
+    "next": "Next",
+    "previous": "Previous",
+    "submit": "Submit",
+    "try_again": "Try Again",
+    "correct": "✅ Correct! Great job!",
+    "incorrect": "❌ Try again next time!",
+    "round": "Round {{current}} of {{total}}"
+  },
+  "instructions": {
+    "welcome": "Welcome to Shape Lab! Let's discover area and perimeter through hands-on building! 🏗️",
+    "perimeter": {
+      "title": "Exercise: Trace the Perimeter",
+      "instruction": "Click squares to build a shape with the target perimeter. Remember: perimeter is the total length of the outer edge!",
+      "tip": "💡 Tip: Perimeter = outer edge length. Try different shapes!"
+    },
+    "area": {
+      "title": "Exercise: What's the Area?",
+      "instruction": "How many squares fit inside this orange shape? Click each square to count!",
+      "tip": "💡 Tip: Area = number of squares that fit inside"
+    },
+    "pattern": {
+      "title": "Pattern Builder",
+      "instruction": "Complete the pattern by selecting the correct next shape",
+      "success": "✅ Pattern Complete! {{explanation}}",
+      "error": "❌ Try again! Look for the pattern!"
+    },
+    "tank": {
+      "title": "🧃 Fill the Tank — L ↔ mL",
+      "instruction": "Choose the correct volume to fill the tank"
+    },
+    "mental_math": {
+      "title": "⚡ Mental Estimation",
+      "instruction": "Think quickly! Use your mental math skills!",
+      "success": "✅ Lightning fast! {{explanation}}",
+      "error": "❌ Keep practicing mental math!"
+    }
+  }
+}

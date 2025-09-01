@@ -1,14 +1,25 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface AreaCountingExerciseProps {
   onComplete: (score: number) => void;
 }
 
 const AreaCountingExercise: React.FC<AreaCountingExerciseProps> = ({ onComplete }) => {
+  const { t } = useTranslation();
   const [clickedSquares, setClickedSquares] = useState<Set<string>>(new Set());
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
+
+  useEffect(() => {
+    // Send initial instruction
+    window.parent.postMessage({
+      type: 'tutorMessage',
+      messageType: 'instruction',
+      content: t('instructions.area.instruction'),
+      data: {}
+    }, '*');
+  }, [t]);
 
   // 4x3 rectangle shape
   const shapeSquares = [
@@ -39,10 +50,23 @@ const AreaCountingExercise: React.FC<AreaCountingExerciseProps> = ({ onComplete 
     setHasSubmitted(true);
     
     if (selectedAnswer === 12) {
-      setTimeout(() => {
-        onComplete(100);
-      }, 1500);
+      window.parent.postMessage({
+        type: 'tutorMessage',
+        messageType: 'success',
+        content: t('common.correct'),
+        data: { answer: selectedAnswer }
+      }, '*');
+      setTimeout(() => onComplete(100), 1500);
     } else {
+      window.parent.postMessage({
+        type: 'tutorMessage',
+        messageType: 'instruction',
+        content: t('common.incorrect') + ' ' + t('instructions.area.tip'),
+        data: { 
+          selected: selectedAnswer,
+          correct: 12
+        }
+      }, '*');
       setTimeout(() => {
         setHasSubmitted(false);
         setSelectedAnswer(null);
@@ -84,28 +108,15 @@ const AreaCountingExercise: React.FC<AreaCountingExerciseProps> = ({ onComplete 
   return (
     <div className="flex-1 flex flex-col items-center justify-center p-2">
       <div className="bg-grade-soft-white rounded-[15px] p-4 border-3 border-grade-black max-w-3xl w-full">
-        <h2 className="font-space font-bold text-lg sm:text-xl text-grade-black mb-3 text-center">
-          Exercise 1: What's the Area?
-        </h2>
-        
-        <p className="text-grade-black font-dm text-base mb-4 text-center">
-          How many squares fit inside this orange shape? Click each square to count!
-        </p>
-
-        <div className="flex flex-col items-center space-y-4">
-          {/* Grid */}
+        <div className="flex flex-col items-center gap-4">
           <div className="grid grid-cols-6 gap-0.5 p-3 bg-grade-input-gray rounded-[12px] border-3 border-grade-border-gray">
             {renderGrid()}
           </div>
 
-          {/* Count Display */}
-          <div className="text-center">
-            <div className="text-lg sm:text-xl font-dm font-bold text-grade-purple mb-2">
-              Counted: {clickedSquares.size} squares
-            </div>
+          <div className="text-lg font-dm font-bold text-grade-purple">
+            {clickedSquares.size}
           </div>
 
-          {/* Answer Options */}
           <div className="flex gap-2 sm:gap-3">
             {[9, 10, 12].map((option) => (
               <button
@@ -122,7 +133,6 @@ const AreaCountingExercise: React.FC<AreaCountingExerciseProps> = ({ onComplete 
             ))}
           </div>
 
-          {/* Submit Button */}
           <button
             onClick={handleSubmit}
             disabled={selectedAnswer === null}
@@ -132,23 +142,8 @@ const AreaCountingExercise: React.FC<AreaCountingExerciseProps> = ({ onComplete 
                 : 'bg-grade-border-gray text-grade-black/50 cursor-not-allowed'
             }`}
           >
-            Check Answer
+            {t('common.submit')}
           </button>
-
-          {/* Feedback */}
-          {hasSubmitted && (
-            <div className="text-center">
-              {selectedAnswer === 12 ? (
-                <div className="text-lg sm:text-xl font-dm font-bold text-green-600">
-                  ✅ Correct! 12 squares = 12 cm²!
-                </div>
-              ) : (
-                <div className="text-lg sm:text-xl font-dm font-bold text-red-600">
-                  ❌ Try again! Count each square carefully.
-                </div>
-              )}
-            </div>
-          )}
         </div>
       </div>
     </div>

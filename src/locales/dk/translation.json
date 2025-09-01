@@ -1,0 +1,42 @@
+{
+  "common": {
+    "success": "Succes!",
+    "error": "Fejl",
+    "next": "Næste",
+    "previous": "Forrige",
+    "submit": "Indsend",
+    "try_again": "Prøv igen",
+    "correct": "✅ Korrekt! Godt arbejde!",
+    "incorrect": "❌ Prøv igen næste gang!",
+    "round": "Runde {{current}} af {{total}}"
+  },
+  "instructions": {
+    "welcome": "Velkommen til Shape Lab! Lad os opdage areal og omkreds gennem praktisk bygning! 🏗️",
+    "perimeter": {
+      "title": "Øvelse: Spor omkredsen",
+      "instruction": "Klik på firkanter for at bygge en form med målomkredsen. Husk: omkreds er den samlede længde af den ydre kant!",
+      "tip": "💡 Tip: Omkreds = ydre kantlængde. Prøv forskellige former!"
+    },
+    "area": {
+      "title": "Øvelse: Hvad er arealet?",
+      "instruction": "Hvor mange firkanter passer ind i denne orange form? Klik på hver firkant for at tælle!",
+      "tip": "💡 Tip: Areal = antal firkanter der passer indeni"
+    },
+    "pattern": {
+      "title": "Mønsterbygger",
+      "instruction": "Fuldfør mønsteret ved at vælge den korrekte næste form",
+      "success": "✅ Mønster fuldført! {{explanation}}",
+      "error": "❌ Prøv igen! Se efter mønsteret!"
+    },
+    "tank": {
+      "title": "🧃 Fyld tanken — L ↔ mL",
+      "instruction": "Vælg det korrekte volumen til at fylde tanken"
+    },
+    "mental_math": {
+      "title": "⚡ Mental estimering",
+      "instruction": "Tænk hurtigt! Brug dine hovedregningsfærdigheder!",
+      "success": "✅ Lynhurtigt! {{explanation}}",
+      "error": "❌ Bliv ved med at øve hovedregning!"
+    }
+  }
+}

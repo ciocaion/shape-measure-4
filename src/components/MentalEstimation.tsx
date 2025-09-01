@@ -1,5 +1,5 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface MentalEstimationProps {
   onComplete: (score: number) => void;
@@ -38,6 +38,7 @@ const challenges: EstimationChallenge[] = [
 ];
 
 const MentalEstimation: React.FC<MentalEstimationProps> = ({ onComplete }) => {
+  const { t } = useTranslation();
   const [currentChallenge, setCurrentChallenge] = useState(0);
   const [score, setScore] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
@@ -45,6 +46,20 @@ const MentalEstimation: React.FC<MentalEstimationProps> = ({ onComplete }) => {
   const [isCorrect, setIsCorrect] = useState(false);
 
   const challenge = challenges[currentChallenge];
+
+  useEffect(() => {
+    // Send initial instruction and question
+    window.parent.postMessage({
+      type: 'tutorMessage',
+      messageType: 'instruction',
+      content: t('instructions.mental_math.instruction'),
+      data: { 
+        round: currentChallenge + 1, 
+        total: challenges.length,
+        question: challenge.question
+      }
+    }, '*');
+  }, [currentChallenge, t, challenge.question]);
 
   const handleAnswer = (answer: number) => {
     setSelectedAnswer(answer);
@@ -54,6 +69,28 @@ const MentalEstimation: React.FC<MentalEstimationProps> = ({ onComplete }) => {
     
     if (correct) {
       setScore(prev => prev + 1);
+      window.parent.postMessage({
+        type: 'tutorMessage',
+        messageType: 'success',
+        content: t('instructions.mental_math.success', { explanation: challenge.explanation }),
+        data: { 
+          score: score + 1, 
+          total: challenges.length,
+          answer
+        }
+      }, '*');
+    } else {
+      window.parent.postMessage({
+        type: 'tutorMessage',
+        messageType: 'instruction',
+        content: t('instructions.mental_math.error'),
+        data: { 
+          score, 
+          total: challenges.length,
+          answer,
+          correctAnswer: challenge.correctAnswer
+        }
+      }, '*');
     }
 
     setTimeout(() => {
@@ -95,34 +132,11 @@ const MentalEstimation: React.FC<MentalEstimationProps> = ({ onComplete }) => {
   return (
     <div className="h-full flex flex-col">
       <div className="bg-grade-soft-white rounded-[20px] p-6 border-l-[10px] border-grade-purple flex-1">
-        <h2 className="font-space font-bold text-2xl text-grade-black mb-2 text-center">
-          ⚡ Mental Estimation
-        </h2>
-        <p className="text-grade-black/70 font-dm text-lg text-center mb-4">
-          Round {currentChallenge + 1} of {challenges.length}
-        </p>
-        
         <div className="text-center mb-6">
-          <h3 className="font-dm font-bold text-xl text-grade-black mb-8">
-            {challenge.question}
-          </h3>
-          
           <div className="flex justify-center gap-4 mb-8">
             {challenge.options.map((option, index) => renderOption(option, index))}
           </div>
-          
-          <div className="text-grade-black/70 font-dm text-base">
-            Think quickly! Use your mental math skills!
-          </div>
         </div>
-
-        {showFeedback && (
-          <div className={`text-center p-4 rounded-[15px] font-dm font-bold text-lg ${
-            isCorrect ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-          }`}>
-            {isCorrect ? `✅ Lightning fast! ${challenge.explanation}` : '❌ Keep practicing mental math!'}
-          </div>
-        )}
       </div>
     </div>
   );

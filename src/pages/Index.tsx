@@ -1,6 +1,5 @@
-
-import React, { useState, useCallback } from 'react';
-import RobotHelper from '../components/RobotHelper';
+import React, { useState, useCallback, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import SuccessAnimation from '../components/SuccessAnimation';
 import AreaCountingExercise from '../components/AreaCountingExercise';
 import AreaBuildingExercise from '../components/AreaBuildingExercise';
@@ -33,11 +32,10 @@ interface GameState {
     score: number;
   };
   showSuccess: boolean;
-  robotMessage: string;
-  isRobotExcited: boolean;
 }
 
 const Index = () => {
+  const { t } = useTranslation();
   const [gameState, setGameState] = useState<GameState>({
     currentExercise: 1,
     exercise1: { completed: false, score: 0 },
@@ -45,10 +43,18 @@ const Index = () => {
     exercise3: { completed: false, score: 0 },
     exercise4: { completed: false, score: 0 },
     exercise5: { completed: false, score: 0 },
-    showSuccess: false,
-    robotMessage: "Welcome to Shape Lab! Let's discover area and perimeter through hands-on building! 🏗️",
-    isRobotExcited: false
+    showSuccess: false
   });
+
+  useEffect(() => {
+    // Send initial welcome message
+    window.parent.postMessage({
+      type: 'tutorMessage',
+      messageType: 'instruction',
+      content: t('instructions.welcome'),
+      data: {}
+    }, '*');
+  }, [t]);
 
   const handleExerciseComplete = useCallback((exercise: Exercise, score: number) => {
     setGameState(prev => {
@@ -56,19 +62,15 @@ const Index = () => {
       newState[`exercise${exercise}`].completed = true;
       newState[`exercise${exercise}`].score = score;
       newState.showSuccess = true;
-      newState.isRobotExcited = true;
 
-      // Set appropriate message
+      // Send completion message
       if (exercise === 5) {
-        newState.robotMessage = "🎉 Amazing! You've mastered area and perimeter! You're a Shape Lab expert! 🏆";
-      } else {
-        const nextMessages = [
-          "Great counting! Now let's build a shape with a specific area! 🔨",
-          "Excellent building! Time to trace the perimeter! 🔍",
-          "Perfect tracing! Can you compare two shapes? 🔍",
-          "Awesome comparison! Final challenge - build with perimeter! 🏗️"
-        ];
-        newState.robotMessage = nextMessages[exercise - 1];
+        window.parent.postMessage({
+          type: 'tutorMessage',
+          messageType: 'success',
+          content: t('instructions.completion'),
+          data: { totalScore: Object.values(newState).reduce((acc, curr) => acc + (curr.score || 0), 0) }
+        }, '*');
       }
 
       return newState;
@@ -80,38 +82,20 @@ const Index = () => {
         setGameState(prev => ({
           ...prev,
           currentExercise: (exercise + 1) as Exercise,
-          showSuccess: false,
-          isRobotExcited: false
+          showSuccess: false
         }));
       }, 2500);
     }
-  }, []);
+  }, [t]);
 
   const renderCompletionScreen = () => (
     <div className="flex-1 flex items-center justify-center p-2">
       <div className="bg-grade-soft-white rounded-[15px] p-4 border-3 border-grade-purple max-w-sm w-full text-center">
-        <h2 className="font-space font-bold text-lg sm:text-xl text-grade-black mb-3">
-          🎉 Shape Lab Master! 🎉
-        </h2>
-        
-        <div className="space-y-2 mb-4">
-          <div className="bg-gradient-to-r from-grade-orange to-grade-purple text-white p-2 rounded-[12px] font-dm font-bold text-sm">
-            📏 Area Expert
-          </div>
-          <div className="bg-gradient-to-r from-grade-blue to-grade-purple text-white p-2 rounded-[12px] font-dm font-bold text-sm">
-            🔍 Perimeter Pro
-          </div>
-        </div>
-
-        <div className="text-base font-dm font-bold text-grade-black mb-4">
-          You've mastered measuring shapes! 🧠✨
-        </div>
-
         <button
           onClick={() => setGameState(prev => ({ ...prev, currentExercise: 1, showSuccess: false }))}
           className="bg-grade-orange text-white px-4 py-2 rounded-[12px] font-dm font-bold text-base hover:scale-105 transition-transform touch-target"
         >
-          🔄 Practice Again
+          🔄
         </button>
       </div>
     </div>
@@ -134,7 +118,6 @@ const Index = () => {
       return <PerimeterBuildingExercise onComplete={(score) => handleExerciseComplete(5, score)} />;
     }
     
-    // All exercises completed
     return renderCompletionScreen();
   };
 
@@ -145,17 +128,6 @@ const Index = () => {
   return (
     <div className="h-screen bg-gradient-to-br from-grade-soft-white via-purple-50 to-blue-50 font-dm overflow-hidden">
       <div className="max-w-5xl mx-auto h-full flex flex-col p-2 sm:p-3">
-        <div className="text-center mb-3">
-          <h1 className="font-space font-bold text-xl sm:text-2xl text-grade-black mb-1">
-            📐 Shape Lab: Measure & Master!
-          </h1>
-          <p className="text-grade-black/70 font-dm text-base">Learn area & perimeter through discovery!</p>
-        </div>
-
-        <div className="mb-3">
-          <RobotHelper message={gameState.robotMessage} isExcited={gameState.isRobotExcited} />
-        </div>
-
         {/* Progress indicator */}
         <div className="flex justify-center mb-3">
           <div className="flex gap-2">
