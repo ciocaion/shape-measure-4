@@ -42,6 +42,7 @@ const ComparisonExercise: React.FC<ComparisonExerciseProps> = ({ onComplete }) =
   const [shakeError, setShakeError] = useState(false);
   const [clickedSquares, setClickedSquares] = useState<ClickedSquares>({ shape1: new Set(), shape2: new Set() });
   const [clickedEdges, setClickedEdges] = useState<ClickedEdges>({ shape1: new Set(), shape2: new Set() });
+  const [animationStep, setAnimationStep] = useState<'idle' | 'area' | 'perimeter' | 'result'>('idle');
 
   const questions: Question[] = [
     // Area Questions (1-5)
@@ -151,22 +152,33 @@ const ComparisonExercise: React.FC<ComparisonExerciseProps> = ({ onComplete }) =
 
     if (isCorrect) {
       setShowProof(true);
-      setShowConfetti(true);
       setScore(score + 5);
       
-      setTimeout(() => setShowConfetti(false), 2000);
+      // Start animation sequence
+      setAnimationStep('area');
       
-      window.parent.postMessage({
-        type: 'tutorMessage',
-        messageType: 'success',
-        content: selectedAnswer === 'area' 
-          ? `Great job! Both shapes have ${question.area1} squares!`
-          : selectedAnswer === 'perimeter'
-          ? `Perfect! Both shapes have perimeter ${question.perimeter1} units!`
-          : 'Correct! These shapes are different in both ways!',
-        data: { correct: true }
-      }, '*');
+      setTimeout(() => {
+        setAnimationStep('perimeter');
+      }, 2000);
+      
+      setTimeout(() => {
+        setAnimationStep('result');
+        setShowConfetti(true);
+        
+        window.parent.postMessage({
+          type: 'tutorMessage',
+          messageType: 'success',
+          content: selectedAnswer === 'area' 
+            ? `Great job! Both shapes have ${question.area1} squares!`
+            : selectedAnswer === 'perimeter'
+            ? `Perfect! Both shapes have perimeter ${question.perimeter1} units!`
+            : 'Correct! These shapes are different in both ways!',
+          data: { correct: true }
+        }, '*');
+      }, 4000);
 
+      setTimeout(() => setShowConfetti(false), 6000);
+      
       setTimeout(() => {
         if (currentQuestion < questions.length - 1) {
           setCurrentQuestion(currentQuestion + 1);
@@ -175,10 +187,11 @@ const ComparisonExercise: React.FC<ComparisonExerciseProps> = ({ onComplete }) =
           setShowProof(false);
           setClickedSquares({ shape1: new Set(), shape2: new Set() });
           setClickedEdges({ shape1: new Set(), shape2: new Set() });
+          setAnimationStep('idle');
         } else {
           setPhase('completion');
         }
-      }, 3000);
+      }, 6500);
     } else {
       setShakeError(true);
       setTimeout(() => setShakeError(false), 500);
@@ -298,6 +311,9 @@ const ComparisonExercise: React.FC<ComparisonExerciseProps> = ({ onComplete }) =
     const maxX = Math.max(...coords.map(c => c[0])) + 1;
     const maxY = Math.max(...coords.map(c => c[1])) + 1;
     const coordSet = new Set(coords.map(([x, y]) => `${x}-${y}`));
+    const question = questions[currentQuestion];
+    const area = shapeKey === 'shape1' ? question.area1 : question.area2;
+    const perimeter = shapeKey === 'shape1' ? question.perimeter1 : question.perimeter2;
 
     return (
       <div className="relative">
@@ -341,10 +357,15 @@ const ComparisonExercise: React.FC<ComparisonExerciseProps> = ({ onComplete }) =
                   {/* Perimeter edges as overlays */}
                   {hasTopEdge && (
                     <div 
-                      className={`absolute -top-1 left-0 right-0 h-2 cursor-pointer z-10 ${isTopClicked ? 'bg-yellow-400' : 'bg-black'} hover:bg-yellow-300 transition-all`}
+                      className={`absolute -top-1 left-0 right-0 h-2 cursor-pointer z-10 ${
+                        animationStep === 'perimeter' || animationStep === 'result' 
+                          ? 'bg-yellow-400' 
+                          : isTopClicked ? 'bg-yellow-400' : 'bg-black'
+                      } hover:bg-yellow-300 transition-all`}
                       onClick={(e) => handleEdgeClick(shapeKey, topEdgeKey, e)}
+                      style={animationStep === 'perimeter' ? { animation: `scale-in 0.2s ease-out ${Array.from(coordSet).findIndex(c => c.startsWith(`${cellX}-${cellY}`)) * 0.05}s both` } : {}}
                     >
-                      {isTopClicked && !hasSubmitted && (
+                      {isTopClicked && !hasSubmitted && animationStep === 'idle' && (
                         <span className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-xs drop-shadow-lg">
                           {Array.from(clickedEdges[shapeKey]).indexOf(topEdgeKey) + 1}
                         </span>
@@ -353,10 +374,15 @@ const ComparisonExercise: React.FC<ComparisonExerciseProps> = ({ onComplete }) =
                   )}
                   {hasRightEdge && (
                     <div 
-                      className={`absolute top-0 -right-1 bottom-0 w-2 cursor-pointer z-10 ${isRightClicked ? 'bg-yellow-400' : 'bg-black'} hover:bg-yellow-300 transition-all`}
+                      className={`absolute top-0 -right-1 bottom-0 w-2 cursor-pointer z-10 ${
+                        animationStep === 'perimeter' || animationStep === 'result' 
+                          ? 'bg-yellow-400' 
+                          : isRightClicked ? 'bg-yellow-400' : 'bg-black'
+                      } hover:bg-yellow-300 transition-all`}
                       onClick={(e) => handleEdgeClick(shapeKey, rightEdgeKey, e)}
+                      style={animationStep === 'perimeter' ? { animation: `scale-in 0.2s ease-out ${Array.from(coordSet).findIndex(c => c.startsWith(`${cellX}-${cellY}`)) * 0.05}s both` } : {}}
                     >
-                      {isRightClicked && !hasSubmitted && (
+                      {isRightClicked && !hasSubmitted && animationStep === 'idle' && (
                         <span className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-xs drop-shadow-lg">
                           {Array.from(clickedEdges[shapeKey]).indexOf(rightEdgeKey) + 1}
                         </span>
@@ -365,10 +391,15 @@ const ComparisonExercise: React.FC<ComparisonExerciseProps> = ({ onComplete }) =
                   )}
                   {hasBottomEdge && (
                     <div 
-                      className={`absolute -bottom-1 left-0 right-0 h-2 cursor-pointer z-10 ${isBottomClicked ? 'bg-yellow-400' : 'bg-black'} hover:bg-yellow-300 transition-all`}
+                      className={`absolute -bottom-1 left-0 right-0 h-2 cursor-pointer z-10 ${
+                        animationStep === 'perimeter' || animationStep === 'result' 
+                          ? 'bg-yellow-400' 
+                          : isBottomClicked ? 'bg-yellow-400' : 'bg-black'
+                      } hover:bg-yellow-300 transition-all`}
                       onClick={(e) => handleEdgeClick(shapeKey, bottomEdgeKey, e)}
+                      style={animationStep === 'perimeter' ? { animation: `scale-in 0.2s ease-out ${Array.from(coordSet).findIndex(c => c.startsWith(`${cellX}-${cellY}`)) * 0.05}s both` } : {}}
                     >
-                      {isBottomClicked && !hasSubmitted && (
+                      {isBottomClicked && !hasSubmitted && animationStep === 'idle' && (
                         <span className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-xs drop-shadow-lg">
                           {Array.from(clickedEdges[shapeKey]).indexOf(bottomEdgeKey) + 1}
                         </span>
@@ -377,10 +408,15 @@ const ComparisonExercise: React.FC<ComparisonExerciseProps> = ({ onComplete }) =
                   )}
                   {hasLeftEdge && (
                     <div 
-                      className={`absolute top-0 -left-1 bottom-0 w-2 cursor-pointer z-10 ${isLeftClicked ? 'bg-yellow-400' : 'bg-black'} hover:bg-yellow-300 transition-all`}
+                      className={`absolute top-0 -left-1 bottom-0 w-2 cursor-pointer z-10 ${
+                        animationStep === 'perimeter' || animationStep === 'result' 
+                          ? 'bg-yellow-400' 
+                          : isLeftClicked ? 'bg-yellow-400' : 'bg-black'
+                      } hover:bg-yellow-300 transition-all`}
                       onClick={(e) => handleEdgeClick(shapeKey, leftEdgeKey, e)}
+                      style={animationStep === 'perimeter' ? { animation: `scale-in 0.2s ease-out ${Array.from(coordSet).findIndex(c => c.startsWith(`${cellX}-${cellY}`)) * 0.05}s both` } : {}}
                     >
-                      {isLeftClicked && !hasSubmitted && (
+                      {isLeftClicked && !hasSubmitted && animationStep === 'idle' && (
                         <span className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-xs drop-shadow-lg">
                           {Array.from(clickedEdges[shapeKey]).indexOf(leftEdgeKey) + 1}
                         </span>
@@ -391,8 +427,13 @@ const ComparisonExercise: React.FC<ComparisonExerciseProps> = ({ onComplete }) =
                   {isClicked && !hasSubmitted && (
                     <span className="text-white font-bold text-sm drop-shadow-lg z-0">{clickedIndex}</span>
                   )}
-                  {showProof && showNumbers && isPartOfShape && (
-                    <span className="text-white font-bold text-sm z-0">{index + 1}</span>
+                  {animationStep === 'area' && isPartOfShape && (
+                    <span 
+                      className="text-white font-bold text-sm z-0"
+                      style={{ animation: `scale-in 0.3s ease-out ${index * 0.1}s both` }}
+                    >
+                      {index + 1}
+                    </span>
                   )}
                 </div>
               );
@@ -440,8 +481,21 @@ const ComparisonExercise: React.FC<ComparisonExerciseProps> = ({ onComplete }) =
               <h3 className="text-lg font-bold text-grade-black mb-3">{question.shape1.name}</h3>
               {renderShape(question.shape1.coords, question.shape1.color, selectedAnswer === 'area' || selectedAnswer === 'nothing', 'shape1')}
               <div className="mt-3 text-sm font-semibold text-grade-purple space-y-1">
-                <div>{clickedSquares.shape1.size > 0 ? `Area: ${clickedSquares.shape1.size} squares` : 'Click squares for area'}</div>
-                <div>{clickedEdges.shape1.size > 0 ? `Perimeter: ${clickedEdges.shape1.size} units` : 'Click edges for perimeter'}</div>
+                {animationStep === 'idle' && (
+                  <>
+                    <div>{clickedSquares.shape1.size > 0 ? `Area: ${clickedSquares.shape1.size} squares` : 'Click squares for area'}</div>
+                    <div>{clickedEdges.shape1.size > 0 ? `Perimeter: ${clickedEdges.shape1.size} units` : 'Click edges for perimeter'}</div>
+                  </>
+                )}
+                {animationStep === 'area' && (
+                  <div className="text-lg font-bold animate-fade-in">Area: {question.area1} squares</div>
+                )}
+                {(animationStep === 'perimeter' || animationStep === 'result') && (
+                  <>
+                    <div className="text-lg font-bold">Area: {question.area1} squares</div>
+                    <div className="text-lg font-bold animate-fade-in">Perimeter: {question.perimeter1} units</div>
+                  </>
+                )}
               </div>
             </div>
 
@@ -449,8 +503,21 @@ const ComparisonExercise: React.FC<ComparisonExerciseProps> = ({ onComplete }) =
               <h3 className="text-lg font-bold text-grade-black mb-3">{question.shape2.name}</h3>
               {renderShape(question.shape2.coords, question.shape2.color, selectedAnswer === 'area' || selectedAnswer === 'nothing', 'shape2')}
               <div className="mt-3 text-sm font-semibold text-grade-purple space-y-1">
-                <div>{clickedSquares.shape2.size > 0 ? `Area: ${clickedSquares.shape2.size} squares` : 'Click squares for area'}</div>
-                <div>{clickedEdges.shape2.size > 0 ? `Perimeter: ${clickedEdges.shape2.size} units` : 'Click edges for perimeter'}</div>
+                {animationStep === 'idle' && (
+                  <>
+                    <div>{clickedSquares.shape2.size > 0 ? `Area: ${clickedSquares.shape2.size} squares` : 'Click squares for area'}</div>
+                    <div>{clickedEdges.shape2.size > 0 ? `Perimeter: ${clickedEdges.shape2.size} units` : 'Click edges for perimeter'}</div>
+                  </>
+                )}
+                {animationStep === 'area' && (
+                  <div className="text-lg font-bold animate-fade-in">Area: {question.area2} squares</div>
+                )}
+                {(animationStep === 'perimeter' || animationStep === 'result') && (
+                  <>
+                    <div className="text-lg font-bold">Area: {question.area2} squares</div>
+                    <div className="text-lg font-bold animate-fade-in">Perimeter: {question.perimeter2} units</div>
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -501,9 +568,13 @@ const ComparisonExercise: React.FC<ComparisonExerciseProps> = ({ onComplete }) =
             {hasSubmitted ? 'Checking...' : 'Submit Answer'}
           </Button>
 
-          {hasSubmitted && selectedAnswer === question.correctAnswer && (
-            <div className="mt-4 p-4 bg-green-100 border-3 border-green-500 rounded-2xl text-center" style={{ animation: 'scale-in 0.3s ease-out' }}>
-              <p className="text-green-800 font-bold text-lg">🎉 Great job! See the proof above!</p>
+          {hasSubmitted && selectedAnswer === question.correctAnswer && animationStep === 'result' && (
+            <div className="mt-4 p-4 bg-green-100 border-3 border-green-500 rounded-2xl text-center animate-fade-in">
+              <p className="text-green-800 font-bold text-lg">
+                {selectedAnswer === 'area' && `🎉 Both shapes have the same area (${question.area1} squares) but different perimeters!`}
+                {selectedAnswer === 'perimeter' && `🎉 Both shapes have the same perimeter (${question.perimeter1} units) but different areas!`}
+                {selectedAnswer === 'nothing' && `🎉 These shapes are different in both area AND perimeter!`}
+              </p>
             </div>
           )}
 
