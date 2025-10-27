@@ -65,11 +65,14 @@ const Index = () => {
 
       // Send completion message
       if (exercise === 5) {
+        const totalScore = newState.exercise1.score + newState.exercise2.score + 
+                          newState.exercise3.score + newState.exercise4.score + 
+                          newState.exercise5.score;
         window.parent.postMessage({
           type: 'tutorMessage',
           messageType: 'success',
           content: t('instructions.completion'),
-          data: { totalScore: Object.values(newState).reduce((acc, curr) => acc + (curr.score || 0), 0) }
+          data: { totalScore }
         }, '*');
       }
 
