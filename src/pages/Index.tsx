@@ -37,7 +37,7 @@ interface GameState {
 const Index = () => {
   const { t } = useTranslation();
   const [gameState, setGameState] = useState<GameState>({
-    currentExercise: 1,
+    currentExercise: 4,
     exercise1: { completed: false, score: 0 },
     exercise2: { completed: false, score: 0 },
     exercise3: { completed: false, score: 0 },
