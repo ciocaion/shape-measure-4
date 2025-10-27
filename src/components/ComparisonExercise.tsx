@@ -333,8 +333,8 @@ const ComparisonExercise: React.FC<ComparisonExerciseProps> = ({ onComplete }) =
                 <div
                   key={`${col}-${row}`}
                   onClick={() => isPartOfShape && handleSquareClick(shapeKey, coordKey)}
-                  className={`w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 border-2 border-white rounded transition-all duration-300 flex items-center justify-center relative ${
-                    isPartOfShape ? `${color} cursor-pointer hover:opacity-80 hover:scale-110` : 'bg-white'
+                  className={`w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 border-2 border-white rounded transition-all duration-200 flex items-center justify-center relative ${
+                    isPartOfShape ? `${color} cursor-pointer hover:opacity-90` : 'bg-white'
                   } ${isClicked ? 'ring-4 ring-yellow-300' : ''}`}
                   style={showProof && showNumbers && isPartOfShape ? { animation: `scale-in 0.3s ease-out ${index * 0.1}s both` } : {}}
                 >
