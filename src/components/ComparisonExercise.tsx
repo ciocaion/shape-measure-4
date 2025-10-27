@@ -341,7 +341,7 @@ const ComparisonExercise: React.FC<ComparisonExerciseProps> = ({ onComplete }) =
                   {/* Perimeter edges as overlays */}
                   {hasTopEdge && (
                     <div 
-                      className={`absolute -top-0.5 left-0 right-0 h-1 cursor-pointer z-10 ${isTopClicked ? 'bg-yellow-400' : 'bg-black'} hover:bg-yellow-300 transition-colors`}
+                      className={`absolute -top-1 left-0 right-0 h-2 cursor-pointer z-10 ${isTopClicked ? 'bg-yellow-400' : 'bg-black'} hover:bg-yellow-300 transition-all`}
                       onClick={(e) => handleEdgeClick(shapeKey, topEdgeKey, e)}
                     >
                       {isTopClicked && !hasSubmitted && (
@@ -353,7 +353,7 @@ const ComparisonExercise: React.FC<ComparisonExerciseProps> = ({ onComplete }) =
                   )}
                   {hasRightEdge && (
                     <div 
-                      className={`absolute top-0 -right-0.5 bottom-0 w-1 cursor-pointer z-10 ${isRightClicked ? 'bg-yellow-400' : 'bg-black'} hover:bg-yellow-300 transition-colors`}
+                      className={`absolute top-0 -right-1 bottom-0 w-2 cursor-pointer z-10 ${isRightClicked ? 'bg-yellow-400' : 'bg-black'} hover:bg-yellow-300 transition-all`}
                       onClick={(e) => handleEdgeClick(shapeKey, rightEdgeKey, e)}
                     >
                       {isRightClicked && !hasSubmitted && (
@@ -365,7 +365,7 @@ const ComparisonExercise: React.FC<ComparisonExerciseProps> = ({ onComplete }) =
                   )}
                   {hasBottomEdge && (
                     <div 
-                      className={`absolute -bottom-0.5 left-0 right-0 h-1 cursor-pointer z-10 ${isBottomClicked ? 'bg-yellow-400' : 'bg-black'} hover:bg-yellow-300 transition-colors`}
+                      className={`absolute -bottom-1 left-0 right-0 h-2 cursor-pointer z-10 ${isBottomClicked ? 'bg-yellow-400' : 'bg-black'} hover:bg-yellow-300 transition-all`}
                       onClick={(e) => handleEdgeClick(shapeKey, bottomEdgeKey, e)}
                     >
                       {isBottomClicked && !hasSubmitted && (
@@ -377,7 +377,7 @@ const ComparisonExercise: React.FC<ComparisonExerciseProps> = ({ onComplete }) =
                   )}
                   {hasLeftEdge && (
                     <div 
-                      className={`absolute top-0 -left-0.5 bottom-0 w-1 cursor-pointer z-10 ${isLeftClicked ? 'bg-yellow-400' : 'bg-black'} hover:bg-yellow-300 transition-colors`}
+                      className={`absolute top-0 -left-1 bottom-0 w-2 cursor-pointer z-10 ${isLeftClicked ? 'bg-yellow-400' : 'bg-black'} hover:bg-yellow-300 transition-all`}
                       onClick={(e) => handleEdgeClick(shapeKey, leftEdgeKey, e)}
                     >
                       {isLeftClicked && !hasSubmitted && (
