@@ -294,36 +294,10 @@ const ComparisonExercise: React.FC<ComparisonExerciseProps> = ({ onComplete }) =
     });
   };
 
-  const getPerimeterEdges = (coords: [number, number][]) => {
-    const edges: { key: string; x1: number; y1: number; x2: number; y2: number; side: string }[] = [];
-    const coordSet = new Set(coords.map(([x, y]) => `${x}-${y}`));
-
-    coords.forEach(([x, y]) => {
-      // Top edge
-      if (!coordSet.has(`${x}-${y - 1}`)) {
-        edges.push({ key: `${x}-${y}-top`, x1: x, y1: y, x2: x + 1, y2: y, side: 'top' });
-      }
-      // Right edge
-      if (!coordSet.has(`${x + 1}-${y}`)) {
-        edges.push({ key: `${x}-${y}-right`, x1: x + 1, y1: y, x2: x + 1, y2: y + 1, side: 'right' });
-      }
-      // Bottom edge
-      if (!coordSet.has(`${x}-${y + 1}`)) {
-        edges.push({ key: `${x}-${y}-bottom`, x1: x, y1: y + 1, x2: x + 1, y2: y + 1, side: 'bottom' });
-      }
-      // Left edge
-      if (!coordSet.has(`${x - 1}-${y}`)) {
-        edges.push({ key: `${x}-${y}-left`, x1: x, y1: y, x2: x, y2: y + 1, side: 'left' });
-      }
-    });
-
-    return edges;
-  };
-
   const renderShape = (coords: [number, number][], color: string, showNumbers: boolean, shapeKey: 'shape1' | 'shape2') => {
     const maxX = Math.max(...coords.map(c => c[0])) + 1;
     const maxY = Math.max(...coords.map(c => c[1])) + 1;
-    const perimeterEdges = getPerimeterEdges(coords);
+    const coordSet = new Set(coords.map(([x, y]) => `${x}-${y}`));
 
     return (
       <div className="relative">
@@ -331,11 +305,29 @@ const ComparisonExercise: React.FC<ComparisonExerciseProps> = ({ onComplete }) =
              style={{ gridTemplateColumns: `repeat(${maxX}, minmax(0, 1fr))` }}>
           {[...Array(maxY)].map((_, row) => (
             [...Array(maxX)].map((_, col) => {
-              const isPartOfShape = coords.some(([x, y]) => x === col + 1 && y === row + 1);
-              const coordKey = `${col + 1}-${row + 1}`;
+              const cellX = col + 1;
+              const cellY = row + 1;
+              const isPartOfShape = coords.some(([x, y]) => x === cellX && y === cellY);
+              const coordKey = `${cellX}-${cellY}`;
               const isClicked = clickedSquares[shapeKey].has(coordKey);
               const clickedIndex = Array.from(clickedSquares[shapeKey]).indexOf(coordKey) + 1;
-              const index = coords.findIndex(([x, y]) => x === col + 1 && y === row + 1);
+              const index = coords.findIndex(([x, y]) => x === cellX && y === cellY);
+              
+              // Check which edges are on the perimeter
+              const hasTopEdge = isPartOfShape && !coordSet.has(`${cellX}-${cellY - 1}`);
+              const hasRightEdge = isPartOfShape && !coordSet.has(`${cellX + 1}-${cellY}`);
+              const hasBottomEdge = isPartOfShape && !coordSet.has(`${cellX}-${cellY + 1}`);
+              const hasLeftEdge = isPartOfShape && !coordSet.has(`${cellX - 1}-${cellY}`);
+              
+              const topEdgeKey = `${cellX}-${cellY}-top`;
+              const rightEdgeKey = `${cellX}-${cellY}-right`;
+              const bottomEdgeKey = `${cellX}-${cellY}-bottom`;
+              const leftEdgeKey = `${cellX}-${cellY}-left`;
+              
+              const isTopClicked = clickedEdges[shapeKey].has(topEdgeKey);
+              const isRightClicked = clickedEdges[shapeKey].has(rightEdgeKey);
+              const isBottomClicked = clickedEdges[shapeKey].has(bottomEdgeKey);
+              const isLeftClicked = clickedEdges[shapeKey].has(leftEdgeKey);
               
               return (
                 <div
@@ -346,63 +338,66 @@ const ComparisonExercise: React.FC<ComparisonExerciseProps> = ({ onComplete }) =
                   } ${isClicked ? 'ring-4 ring-yellow-300' : ''}`}
                   style={showProof && showNumbers && isPartOfShape ? { animation: `scale-in 0.3s ease-out ${index * 0.1}s both` } : {}}
                 >
+                  {/* Perimeter edges as overlays */}
+                  {hasTopEdge && (
+                    <div 
+                      className={`absolute -top-0.5 left-0 right-0 h-1 cursor-pointer z-10 ${isTopClicked ? 'bg-yellow-400' : 'bg-black'} hover:bg-yellow-300 transition-colors`}
+                      onClick={(e) => handleEdgeClick(shapeKey, topEdgeKey, e)}
+                    >
+                      {isTopClicked && !hasSubmitted && (
+                        <span className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-xs drop-shadow-lg">
+                          {Array.from(clickedEdges[shapeKey]).indexOf(topEdgeKey) + 1}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                  {hasRightEdge && (
+                    <div 
+                      className={`absolute top-0 -right-0.5 bottom-0 w-1 cursor-pointer z-10 ${isRightClicked ? 'bg-yellow-400' : 'bg-black'} hover:bg-yellow-300 transition-colors`}
+                      onClick={(e) => handleEdgeClick(shapeKey, rightEdgeKey, e)}
+                    >
+                      {isRightClicked && !hasSubmitted && (
+                        <span className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-xs drop-shadow-lg">
+                          {Array.from(clickedEdges[shapeKey]).indexOf(rightEdgeKey) + 1}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                  {hasBottomEdge && (
+                    <div 
+                      className={`absolute -bottom-0.5 left-0 right-0 h-1 cursor-pointer z-10 ${isBottomClicked ? 'bg-yellow-400' : 'bg-black'} hover:bg-yellow-300 transition-colors`}
+                      onClick={(e) => handleEdgeClick(shapeKey, bottomEdgeKey, e)}
+                    >
+                      {isBottomClicked && !hasSubmitted && (
+                        <span className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-xs drop-shadow-lg">
+                          {Array.from(clickedEdges[shapeKey]).indexOf(bottomEdgeKey) + 1}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                  {hasLeftEdge && (
+                    <div 
+                      className={`absolute top-0 -left-0.5 bottom-0 w-1 cursor-pointer z-10 ${isLeftClicked ? 'bg-yellow-400' : 'bg-black'} hover:bg-yellow-300 transition-colors`}
+                      onClick={(e) => handleEdgeClick(shapeKey, leftEdgeKey, e)}
+                    >
+                      {isLeftClicked && !hasSubmitted && (
+                        <span className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-xs drop-shadow-lg">
+                          {Array.from(clickedEdges[shapeKey]).indexOf(leftEdgeKey) + 1}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                  
                   {isClicked && !hasSubmitted && (
-                    <span className="text-white font-bold text-sm drop-shadow-lg">{clickedIndex}</span>
+                    <span className="text-white font-bold text-sm drop-shadow-lg z-0">{clickedIndex}</span>
                   )}
                   {showProof && showNumbers && isPartOfShape && (
-                    <span className="text-white font-bold text-sm">{index + 1}</span>
+                    <span className="text-white font-bold text-sm z-0">{index + 1}</span>
                   )}
                 </div>
               );
             })
           ))}
-          
-          {/* Perimeter edges overlay */}
-          <svg className="absolute inset-0 pointer-events-none" style={{ width: '100%', height: '100%' }}>
-            {perimeterEdges.map((edge) => {
-              const cellSize = 40; // Match with w-10/h-10
-              const padding = 16; // Match p-4
-              const gap = 2; // Match gap-0.5
-              
-              const x1 = padding + (edge.x1 - 1) * (cellSize + gap);
-              const y1 = padding + (edge.y1 - 1) * (cellSize + gap);
-              const x2 = padding + (edge.x2 - 1) * (cellSize + gap);
-              const y2 = padding + (edge.y2 - 1) * (cellSize + gap);
-              
-              const isClicked = clickedEdges[shapeKey].has(edge.key);
-              const clickedIndex = Array.from(clickedEdges[shapeKey]).indexOf(edge.key) + 1;
-              
-              return (
-                <g key={edge.key}>
-                  <line
-                    x1={x1}
-                    y1={y1}
-                    x2={x2}
-                    y2={y2}
-                    stroke={isClicked ? "#FCD34D" : "#000000"}
-                    strokeWidth={isClicked ? "6" : "3"}
-                    className="pointer-events-auto cursor-pointer hover:stroke-yellow-300 transition-all"
-                    onClick={(e) => handleEdgeClick(shapeKey, edge.key, e)}
-                  />
-                  {isClicked && !hasSubmitted && (
-                    <text
-                      x={(x1 + x2) / 2}
-                      y={(y1 + y2) / 2}
-                      textAnchor="middle"
-                      dominantBaseline="middle"
-                      fill="white"
-                      fontSize="14"
-                      fontWeight="bold"
-                      className="pointer-events-none"
-                      style={{ textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}
-                    >
-                      {clickedIndex}
-                    </text>
-                  )}
-                </g>
-              );
-            })}
-          </svg>
         </div>
       </div>
     );
