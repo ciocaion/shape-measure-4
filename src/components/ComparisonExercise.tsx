@@ -24,6 +24,11 @@ interface ClickedSquares {
   shape2: Set<string>;
 }
 
+interface ClickedEdges {
+  shape1: Set<string>;
+  shape2: Set<string>;
+}
+
 const ComparisonExercise: React.FC<ComparisonExerciseProps> = ({ onComplete }) => {
   const { t } = useTranslation();
   const [phase, setPhase] = useState<Phase>('tutorial');
@@ -36,8 +41,10 @@ const ComparisonExercise: React.FC<ComparisonExerciseProps> = ({ onComplete }) =
   const [showConfetti, setShowConfetti] = useState(false);
   const [shakeError, setShakeError] = useState(false);
   const [clickedSquares, setClickedSquares] = useState<ClickedSquares>({ shape1: new Set(), shape2: new Set() });
+  const [clickedEdges, setClickedEdges] = useState<ClickedEdges>({ shape1: new Set(), shape2: new Set() });
 
   const questions: Question[] = [
+    // Area Questions (1-5)
     {
       id: 1,
       shape1: { coords: [[1,1],[2,1],[3,1],[1,2],[2,2],[3,2],[1,3],[2,3],[3,3],[1,4],[2,4],[3,4]], color: 'bg-blue-500', name: 'Rectangle' },
@@ -47,52 +54,67 @@ const ComparisonExercise: React.FC<ComparisonExerciseProps> = ({ onComplete }) =
     },
     {
       id: 2,
-      shape1: { coords: [[1,1],[2,1],[3,1],[1,2],[3,2],[1,3],[2,3],[3,3]], color: 'bg-purple-500', name: 'U-Shape' },
-      shape2: { coords: [[1,1],[2,1],[1,2],[2,2],[1,3],[2,3],[1,4],[2,4]], color: 'bg-green-500', name: 'Rectangle' },
+      shape1: { coords: [[1,1],[2,1],[1,2],[2,2]], color: 'bg-purple-500', name: 'Square' },
+      shape2: { coords: [[1,1],[2,1],[3,1],[4,1]], color: 'bg-green-500', name: 'Line' },
       correctAnswer: 'area',
-      area1: 8, area2: 8, perimeter1: 12, perimeter2: 12
-    },
-    {
-      id: 3,
-      shape1: { coords: [[1,1],[2,1],[3,1],[1,2],[2,2],[3,2]], color: 'bg-pink-500', name: 'Rectangle' },
-      shape2: { coords: [[2,1],[1,2],[2,2],[3,2],[2,3]], color: 'bg-teal-500', name: 'Plus' },
-      correctAnswer: 'nothing',
-      area1: 6, area2: 5, perimeter1: 10, perimeter2: 12
-    },
-    {
-      id: 4,
-      shape1: { coords: [[1,1],[2,1],[1,2],[2,2]], color: 'bg-blue-500', name: 'Square' },
-      shape2: { coords: [[1,1],[2,1],[3,1],[4,1]], color: 'bg-orange-500', name: 'Line' },
-      correctAnswer: 'perimeter',
       area1: 4, area2: 4, perimeter1: 8, perimeter2: 10
     },
     {
-      id: 5,
+      id: 3,
       shape1: { coords: [[1,1],[2,1],[3,1],[1,2],[2,2],[3,2],[1,3],[2,3],[3,3]], color: 'bg-indigo-500', name: 'Square' },
       shape2: { coords: [[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],[7,1],[8,1],[9,1]], color: 'bg-amber-500', name: 'Line' },
       correctAnswer: 'area',
       area1: 9, area2: 9, perimeter1: 12, perimeter2: 20
     },
     {
-      id: 6,
+      id: 4,
       shape1: { coords: [[1,1],[2,1],[1,2],[2,2],[1,3],[2,3]], color: 'bg-red-500', name: 'Rectangle' },
       shape2: { coords: [[1,1],[2,1],[3,1],[1,2],[3,2],[1,3]], color: 'bg-cyan-500', name: 'L-Shape' },
-      correctAnswer: 'perimeter',
+      correctAnswer: 'area',
       area1: 6, area2: 6, perimeter1: 10, perimeter2: 12
+    },
+    {
+      id: 5,
+      shape1: { coords: [[1,1],[2,1],[3,1],[1,2],[1,3]], color: 'bg-fuchsia-500', name: 'L-Shape' },
+      shape2: { coords: [[1,1],[1,2],[1,3],[1,4],[1,5]], color: 'bg-emerald-500', name: 'Line' },
+      correctAnswer: 'area',
+      area1: 5, area2: 5, perimeter1: 10, perimeter2: 12
+    },
+    // Perimeter Questions (6-10)
+    {
+      id: 6,
+      shape1: { coords: [[1,1],[2,1],[3,1],[1,2],[2,2],[3,2]], color: 'bg-pink-500', name: 'Rectangle' },
+      shape2: { coords: [[2,1],[1,2],[2,2],[3,2],[2,3]], color: 'bg-teal-500', name: 'Plus' },
+      correctAnswer: 'perimeter',
+      area1: 6, area2: 5, perimeter1: 10, perimeter2: 10
     },
     {
       id: 7,
       shape1: { coords: [[1,1],[2,1],[1,2],[2,2],[3,2],[4,2]], color: 'bg-violet-500', name: 'L-Shape' },
       shape2: { coords: [[1,1],[2,1],[3,1],[1,2],[2,2],[3,2]], color: 'bg-lime-500', name: 'Rectangle' },
-      correctAnswer: 'area',
+      correctAnswer: 'perimeter',
       area1: 6, area2: 6, perimeter1: 10, perimeter2: 10
     },
     {
       id: 8,
-      shape1: { coords: [[1,1],[2,1],[3,1],[1,2],[1,3]], color: 'bg-fuchsia-500', name: 'L-Shape' },
-      shape2: { coords: [[1,1],[1,2],[1,3],[1,4],[1,5]], color: 'bg-emerald-500', name: 'Line' },
-      correctAnswer: 'area',
-      area1: 5, area2: 5, perimeter1: 10, perimeter2: 12
+      shape1: { coords: [[1,1],[2,1],[1,2],[2,2],[1,3],[2,3],[1,4],[2,4]], color: 'bg-blue-400', name: 'Rectangle' },
+      shape2: { coords: [[1,1],[2,1],[3,1],[1,2],[3,2],[1,3],[2,3],[3,3]], color: 'bg-orange-400', name: 'U-Shape' },
+      correctAnswer: 'perimeter',
+      area1: 8, area2: 8, perimeter1: 12, perimeter2: 12
+    },
+    {
+      id: 9,
+      shape1: { coords: [[1,1],[2,1],[3,1],[4,1],[5,1],[6,1]], color: 'bg-purple-400', name: 'Line' },
+      shape2: { coords: [[1,1],[2,1],[3,1],[1,2],[2,2],[3,2],[1,3],[2,3],[3,3]], color: 'bg-green-400', name: 'Square' },
+      correctAnswer: 'perimeter',
+      area1: 6, area2: 9, perimeter1: 14, perimeter2: 12
+    },
+    {
+      id: 10,
+      shape1: { coords: [[1,1],[2,1],[1,2],[2,2],[1,3]], color: 'bg-red-400', name: 'L-Shape' },
+      shape2: { coords: [[1,1],[2,1],[1,2],[1,3]], color: 'bg-cyan-400', name: 'L-Shape' },
+      correctAnswer: 'nothing',
+      area1: 5, area2: 4, perimeter1: 10, perimeter2: 8
     }
   ];
 
@@ -152,6 +174,7 @@ const ComparisonExercise: React.FC<ComparisonExerciseProps> = ({ onComplete }) =
           setHasSubmitted(false);
           setShowProof(false);
           setClickedSquares({ shape1: new Set(), shape2: new Set() });
+          setClickedEdges({ shape1: new Set(), shape2: new Set() });
         } else {
           setPhase('completion');
         }
@@ -256,40 +279,131 @@ const ComparisonExercise: React.FC<ComparisonExerciseProps> = ({ onComplete }) =
     });
   };
 
+  const handleEdgeClick = (shapeKey: 'shape1' | 'shape2', edgeKey: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (hasSubmitted) return;
+    
+    setClickedEdges(prev => {
+      const newSet = new Set(prev[shapeKey]);
+      if (newSet.has(edgeKey)) {
+        newSet.delete(edgeKey);
+      } else {
+        newSet.add(edgeKey);
+      }
+      return { ...prev, [shapeKey]: newSet };
+    });
+  };
+
+  const getPerimeterEdges = (coords: [number, number][]) => {
+    const edges: { key: string; x1: number; y1: number; x2: number; y2: number; side: string }[] = [];
+    const coordSet = new Set(coords.map(([x, y]) => `${x}-${y}`));
+
+    coords.forEach(([x, y]) => {
+      // Top edge
+      if (!coordSet.has(`${x}-${y - 1}`)) {
+        edges.push({ key: `${x}-${y}-top`, x1: x, y1: y, x2: x + 1, y2: y, side: 'top' });
+      }
+      // Right edge
+      if (!coordSet.has(`${x + 1}-${y}`)) {
+        edges.push({ key: `${x}-${y}-right`, x1: x + 1, y1: y, x2: x + 1, y2: y + 1, side: 'right' });
+      }
+      // Bottom edge
+      if (!coordSet.has(`${x}-${y + 1}`)) {
+        edges.push({ key: `${x}-${y}-bottom`, x1: x, y1: y + 1, x2: x + 1, y2: y + 1, side: 'bottom' });
+      }
+      // Left edge
+      if (!coordSet.has(`${x - 1}-${y}`)) {
+        edges.push({ key: `${x}-${y}-left`, x1: x, y1: y, x2: x, y2: y + 1, side: 'left' });
+      }
+    });
+
+    return edges;
+  };
+
   const renderShape = (coords: [number, number][], color: string, showNumbers: boolean, shapeKey: 'shape1' | 'shape2') => {
     const maxX = Math.max(...coords.map(c => c[0])) + 1;
     const maxY = Math.max(...coords.map(c => c[1])) + 1;
+    const perimeterEdges = getPerimeterEdges(coords);
 
     return (
-      <div className={`grid gap-0.5 p-4 bg-grade-input-gray rounded-2xl border-3 border-grade-border-gray`} 
-           style={{ gridTemplateColumns: `repeat(${maxX}, minmax(0, 1fr))` }}>
-        {[...Array(maxY)].map((_, row) => (
-          [...Array(maxX)].map((_, col) => {
-            const isPartOfShape = coords.some(([x, y]) => x === col + 1 && y === row + 1);
-            const coordKey = `${col + 1}-${row + 1}`;
-            const isClicked = clickedSquares[shapeKey].has(coordKey);
-            const clickedIndex = Array.from(clickedSquares[shapeKey]).indexOf(coordKey) + 1;
-            const index = coords.findIndex(([x, y]) => x === col + 1 && y === row + 1);
-            
-            return (
-              <div
-                key={`${col}-${row}`}
-                onClick={() => isPartOfShape && handleSquareClick(shapeKey, coordKey)}
-                className={`w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 border-2 border-white rounded transition-all duration-300 flex items-center justify-center ${
-                  isPartOfShape ? `${color} cursor-pointer hover:opacity-80 hover:scale-110` : 'bg-white'
-                } ${isClicked ? 'ring-4 ring-yellow-300' : ''}`}
-                style={showProof && showNumbers && isPartOfShape ? { animation: `scale-in 0.3s ease-out ${index * 0.1}s both` } : {}}
-              >
-                {isClicked && !hasSubmitted && (
-                  <span className="text-white font-bold text-sm drop-shadow-lg">{clickedIndex}</span>
-                )}
-                {showProof && showNumbers && isPartOfShape && (
-                  <span className="text-white font-bold text-sm">{index + 1}</span>
-                )}
-              </div>
-            );
-          })
-        ))}
+      <div className="relative">
+        <div className={`grid gap-0.5 p-4 bg-grade-input-gray rounded-2xl border-3 border-grade-border-gray relative`} 
+             style={{ gridTemplateColumns: `repeat(${maxX}, minmax(0, 1fr))` }}>
+          {[...Array(maxY)].map((_, row) => (
+            [...Array(maxX)].map((_, col) => {
+              const isPartOfShape = coords.some(([x, y]) => x === col + 1 && y === row + 1);
+              const coordKey = `${col + 1}-${row + 1}`;
+              const isClicked = clickedSquares[shapeKey].has(coordKey);
+              const clickedIndex = Array.from(clickedSquares[shapeKey]).indexOf(coordKey) + 1;
+              const index = coords.findIndex(([x, y]) => x === col + 1 && y === row + 1);
+              
+              return (
+                <div
+                  key={`${col}-${row}`}
+                  onClick={() => isPartOfShape && handleSquareClick(shapeKey, coordKey)}
+                  className={`w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 border-2 border-white rounded transition-all duration-300 flex items-center justify-center relative ${
+                    isPartOfShape ? `${color} cursor-pointer hover:opacity-80 hover:scale-110` : 'bg-white'
+                  } ${isClicked ? 'ring-4 ring-yellow-300' : ''}`}
+                  style={showProof && showNumbers && isPartOfShape ? { animation: `scale-in 0.3s ease-out ${index * 0.1}s both` } : {}}
+                >
+                  {isClicked && !hasSubmitted && (
+                    <span className="text-white font-bold text-sm drop-shadow-lg">{clickedIndex}</span>
+                  )}
+                  {showProof && showNumbers && isPartOfShape && (
+                    <span className="text-white font-bold text-sm">{index + 1}</span>
+                  )}
+                </div>
+              );
+            })
+          ))}
+          
+          {/* Perimeter edges overlay */}
+          <svg className="absolute inset-0 pointer-events-none" style={{ width: '100%', height: '100%' }}>
+            {perimeterEdges.map((edge) => {
+              const cellSize = 40; // Match with w-10/h-10
+              const padding = 16; // Match p-4
+              const gap = 2; // Match gap-0.5
+              
+              const x1 = padding + (edge.x1 - 1) * (cellSize + gap);
+              const y1 = padding + (edge.y1 - 1) * (cellSize + gap);
+              const x2 = padding + (edge.x2 - 1) * (cellSize + gap);
+              const y2 = padding + (edge.y2 - 1) * (cellSize + gap);
+              
+              const isClicked = clickedEdges[shapeKey].has(edge.key);
+              const clickedIndex = Array.from(clickedEdges[shapeKey]).indexOf(edge.key) + 1;
+              
+              return (
+                <g key={edge.key}>
+                  <line
+                    x1={x1}
+                    y1={y1}
+                    x2={x2}
+                    y2={y2}
+                    stroke={isClicked ? "#FCD34D" : "#000000"}
+                    strokeWidth={isClicked ? "6" : "3"}
+                    className="pointer-events-auto cursor-pointer hover:stroke-yellow-300 transition-all"
+                    onClick={(e) => handleEdgeClick(shapeKey, edge.key, e)}
+                  />
+                  {isClicked && !hasSubmitted && (
+                    <text
+                      x={(x1 + x2) / 2}
+                      y={(y1 + y2) / 2}
+                      textAnchor="middle"
+                      dominantBaseline="middle"
+                      fill="white"
+                      fontSize="14"
+                      fontWeight="bold"
+                      className="pointer-events-none"
+                      style={{ textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}
+                    >
+                      {clickedIndex}
+                    </text>
+                  )}
+                </g>
+              );
+            })}
+          </svg>
+        </div>
       </div>
     );
   };
@@ -319,28 +433,29 @@ const ComparisonExercise: React.FC<ComparisonExerciseProps> = ({ onComplete }) =
 
         <div className="bg-white rounded-3xl p-4 sm:p-6 lg:p-8 border-4 border-grade-purple max-w-6xl w-full shadow-2xl">
           <div className="text-center mb-4">
-            <div className="text-sm text-grade-purple font-bold mb-2">Question {currentQuestion + 1} of 8</div>
+            <div className="text-sm text-grade-purple font-bold mb-2">Question {currentQuestion + 1} of 10</div>
             <h2 className="text-xl sm:text-2xl lg:text-3xl font-dm font-bold text-grade-black mb-4">
               Which property is the same for both shapes?
             </h2>
+            <p className="text-sm text-grade-black">Click squares to count area, click edges to count perimeter</p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 mb-6">
             <div className="flex flex-col items-center">
               <h3 className="text-lg font-bold text-grade-black mb-3">{question.shape1.name}</h3>
               {renderShape(question.shape1.coords, question.shape1.color, selectedAnswer === 'area' || selectedAnswer === 'nothing', 'shape1')}
-              <div className="mt-3 text-sm font-semibold text-grade-purple">
-                {clickedSquares.shape1.size > 0 && `Counted: ${clickedSquares.shape1.size} squares`}
-                {clickedSquares.shape1.size === 0 && 'Click squares to count!'}
+              <div className="mt-3 text-sm font-semibold text-grade-purple space-y-1">
+                <div>{clickedSquares.shape1.size > 0 ? `Area: ${clickedSquares.shape1.size} squares` : 'Click squares for area'}</div>
+                <div>{clickedEdges.shape1.size > 0 ? `Perimeter: ${clickedEdges.shape1.size} units` : 'Click edges for perimeter'}</div>
               </div>
             </div>
 
             <div className="flex flex-col items-center">
               <h3 className="text-lg font-bold text-grade-black mb-3">{question.shape2.name}</h3>
               {renderShape(question.shape2.coords, question.shape2.color, selectedAnswer === 'area' || selectedAnswer === 'nothing', 'shape2')}
-              <div className="mt-3 text-sm font-semibold text-grade-purple">
-                {clickedSquares.shape2.size > 0 && `Counted: ${clickedSquares.shape2.size} squares`}
-                {clickedSquares.shape2.size === 0 && 'Click squares to count!'}
+              <div className="mt-3 text-sm font-semibold text-grade-purple space-y-1">
+                <div>{clickedSquares.shape2.size > 0 ? `Area: ${clickedSquares.shape2.size} squares` : 'Click squares for area'}</div>
+                <div>{clickedEdges.shape2.size > 0 ? `Perimeter: ${clickedEdges.shape2.size} units` : 'Click edges for perimeter'}</div>
               </div>
             </div>
           </div>
@@ -408,12 +523,12 @@ const ComparisonExercise: React.FC<ComparisonExerciseProps> = ({ onComplete }) =
   };
 
   const renderCompletion = () => {
-    const stars = Math.floor((score / 40) * 5);
+    const stars = Math.floor((score / 50) * 5);
     
     return (
       <div className="flex-1 flex items-center justify-center p-4">
         <div className="bg-white rounded-3xl p-8 border-4 border-grade-purple max-w-2xl w-full shadow-2xl text-center">
-          <h2 className="text-4xl font-dm font-bold text-grade-purple mb-4">Shape Lab Complete! 🎉</h2>
+          <h2 className="text-4xl font-dm font-bold text-grade-purple mb-4">Shape Comparison Complete! 🎉</h2>
           
           <div className="my-8">
             <div className="text-6xl mb-4">
@@ -423,8 +538,8 @@ const ComparisonExercise: React.FC<ComparisonExerciseProps> = ({ onComplete }) =
                 </span>
               ))}
             </div>
-            <p className="text-2xl font-bold text-grade-black mb-2">Score: {score} / 40</p>
-            <p className="text-lg text-grade-black">You answered {score / 5} out of 8 questions correctly!</p>
+            <p className="text-2xl font-bold text-grade-black mb-2">Score: {score} / 50</p>
+            <p className="text-lg text-grade-black">You answered {score / 5} out of 10 questions correctly!</p>
           </div>
 
           <div className="space-y-3">
@@ -445,6 +560,7 @@ const ComparisonExercise: React.FC<ComparisonExerciseProps> = ({ onComplete }) =
                 setHasSubmitted(false);
                 setShowProof(false);
                 setClickedSquares({ shape1: new Set(), shape2: new Set() });
+                setClickedEdges({ shape1: new Set(), shape2: new Set() });
               }}
               className="w-full bg-grade-orange hover:bg-grade-orange/90 text-white text-xl py-6 rounded-2xl font-bold"
             >
