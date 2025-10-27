@@ -131,23 +131,16 @@ const Index = () => {
   return (
     <div className="h-screen bg-gradient-to-br from-grade-soft-white via-purple-50 to-blue-50 font-dm overflow-hidden">
       <div className="max-w-5xl mx-auto h-full flex flex-col p-2 sm:p-3">
-        {/* Progress indicator */}
-        <div className="flex justify-center mb-3">
-          <div className="flex gap-2">
-            {[1, 2, 3, 4, 5].map((exercise) => (
-              <div
-                key={exercise}
-                className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center font-bold text-sm sm:text-base transition-all duration-300 ${
-                  exercise <= gameState.currentExercise 
-                    ? 'bg-grade-purple text-white' 
-                    : 'bg-grade-border-gray text-grade-black/50'
-                }`}
-              >
-                {exercise}
-              </div>
-            ))}
+        {/* Progress indicator - only show when not in tutorial or completion */}
+        {gameState.currentExercise === 4 && (
+          <div className="flex justify-center mb-3">
+            <div className="bg-white rounded-full px-4 py-2 border-3 border-grade-purple shadow-lg">
+              <span className="text-grade-purple font-bold text-sm">
+                Exercise {gameState.currentExercise} of 5: Compare the Shapes
+              </span>
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="flex-1 min-h-0 overflow-auto">
           {allCompleted && !gameState.showSuccess ? renderCompletionScreen() : renderCurrentExercise()}

@@ -19,6 +19,11 @@ interface Question {
   perimeter2: number;
 }
 
+interface ClickedSquares {
+  shape1: Set<string>;
+  shape2: Set<string>;
+}
+
 const ComparisonExercise: React.FC<ComparisonExerciseProps> = ({ onComplete }) => {
   const { t } = useTranslation();
   const [phase, setPhase] = useState<Phase>('tutorial');
@@ -30,6 +35,7 @@ const ComparisonExercise: React.FC<ComparisonExerciseProps> = ({ onComplete }) =
   const [score, setScore] = useState(0);
   const [showConfetti, setShowConfetti] = useState(false);
   const [shakeError, setShakeError] = useState(false);
+  const [clickedSquares, setClickedSquares] = useState<ClickedSquares>({ shape1: new Set(), shape2: new Set() });
 
   const questions: Question[] = [
     {
@@ -37,55 +43,55 @@ const ComparisonExercise: React.FC<ComparisonExerciseProps> = ({ onComplete }) =
       shape1: { coords: [[1,1],[2,1],[3,1],[1,2],[2,2],[3,2],[1,3],[2,3],[3,3],[1,4],[2,4],[3,4]], color: 'bg-blue-500', name: 'Rectangle' },
       shape2: { coords: [[1,1],[2,1],[3,1],[1,2],[1,3],[1,4],[2,4],[3,4],[4,4],[5,4],[6,4],[7,4]], color: 'bg-orange-500', name: 'L-Shape' },
       correctAnswer: 'area',
-      area1: 12, area2: 12, perimeter1: 14, perimeter2: 16
+      area1: 12, area2: 12, perimeter1: 14, perimeter2: 18
     },
     {
       id: 2,
-      shape1: { coords: [[1,1],[2,1],[3,1],[4,1],[1,2],[4,2],[1,3],[4,3],[1,4],[2,4],[3,4],[4,4]], color: 'bg-purple-500', name: 'Frame' },
-      shape2: { coords: [[1,1],[2,1],[1,2],[2,2],[1,3],[2,3]], color: 'bg-green-500', name: 'Column' },
-      correctAnswer: 'perimeter',
-      area1: 12, area2: 6, perimeter1: 16, perimeter2: 10
+      shape1: { coords: [[1,1],[2,1],[3,1],[1,2],[3,2],[1,3],[2,3],[3,3]], color: 'bg-purple-500', name: 'U-Shape' },
+      shape2: { coords: [[1,1],[2,1],[1,2],[2,2],[1,3],[2,3],[1,4],[2,4]], color: 'bg-green-500', name: 'Rectangle' },
+      correctAnswer: 'area',
+      area1: 8, area2: 8, perimeter1: 12, perimeter2: 12
     },
     {
       id: 3,
       shape1: { coords: [[1,1],[2,1],[3,1],[1,2],[2,2],[3,2]], color: 'bg-pink-500', name: 'Rectangle' },
-      shape2: { coords: [[1,1],[2,1],[1,2],[2,2],[3,2],[4,2]], color: 'bg-teal-500', name: 'L-Shape' },
-      correctAnswer: 'area',
-      area1: 6, area2: 6, perimeter1: 10, perimeter2: 10
+      shape2: { coords: [[2,1],[1,2],[2,2],[3,2],[2,3]], color: 'bg-teal-500', name: 'Plus' },
+      correctAnswer: 'nothing',
+      area1: 6, area2: 5, perimeter1: 10, perimeter2: 12
     },
     {
       id: 4,
-      shape1: { coords: [[2,1],[1,2],[2,2],[3,2],[2,3]], color: 'bg-blue-500', name: 'Plus' },
-      shape2: { coords: [[1,1],[2,1],[3,1],[4,1],[5,1]], color: 'bg-orange-500', name: 'Line' },
-      correctAnswer: 'area',
-      area1: 5, area2: 5, perimeter1: 12, perimeter2: 12
+      shape1: { coords: [[1,1],[2,1],[1,2],[2,2]], color: 'bg-blue-500', name: 'Square' },
+      shape2: { coords: [[1,1],[2,1],[3,1],[4,1]], color: 'bg-orange-500', name: 'Line' },
+      correctAnswer: 'perimeter',
+      area1: 4, area2: 4, perimeter1: 8, perimeter2: 10
     },
     {
       id: 5,
-      shape1: { coords: [[1,1],[2,1],[3,1],[1,2],[3,2],[1,3],[2,3],[3,3]], color: 'bg-indigo-500', name: 'U-Shape' },
-      shape2: { coords: [[1,1],[2,1],[1,2],[2,2],[1,3],[2,3],[1,4],[2,4]], color: 'bg-amber-500', name: 'Rectangle' },
-      correctAnswer: 'perimeter',
-      area1: 8, area2: 8, perimeter1: 12, perimeter2: 12
+      shape1: { coords: [[1,1],[2,1],[3,1],[1,2],[2,2],[3,2],[1,3],[2,3],[3,3]], color: 'bg-indigo-500', name: 'Square' },
+      shape2: { coords: [[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],[7,1],[8,1],[9,1]], color: 'bg-amber-500', name: 'Line' },
+      correctAnswer: 'area',
+      area1: 9, area2: 9, perimeter1: 12, perimeter2: 20
     },
     {
       id: 6,
-      shape1: { coords: [[1,1],[2,1],[3,1],[4,1]], color: 'bg-red-500', name: 'Line' },
-      shape2: { coords: [[1,1],[2,1],[1,2],[2,2]], color: 'bg-cyan-500', name: 'Square' },
+      shape1: { coords: [[1,1],[2,1],[1,2],[2,2],[1,3],[2,3]], color: 'bg-red-500', name: 'Rectangle' },
+      shape2: { coords: [[1,1],[2,1],[3,1],[1,2],[3,2],[1,3]], color: 'bg-cyan-500', name: 'L-Shape' },
       correctAnswer: 'perimeter',
-      area1: 4, area2: 4, perimeter1: 10, perimeter2: 8
+      area1: 6, area2: 6, perimeter1: 10, perimeter2: 12
     },
     {
       id: 7,
-      shape1: { coords: [[1,1],[2,1],[3,1],[1,2],[2,2],[1,3]], color: 'bg-violet-500', name: 'L-Shape' },
-      shape2: { coords: [[1,1],[2,1],[1,2],[2,2],[1,3],[2,3]], color: 'bg-lime-500', name: 'Rectangle' },
+      shape1: { coords: [[1,1],[2,1],[1,2],[2,2],[3,2],[4,2]], color: 'bg-violet-500', name: 'L-Shape' },
+      shape2: { coords: [[1,1],[2,1],[3,1],[1,2],[2,2],[3,2]], color: 'bg-lime-500', name: 'Rectangle' },
       correctAnswer: 'area',
       area1: 6, area2: 6, perimeter1: 10, perimeter2: 10
     },
     {
       id: 8,
-      shape1: { coords: [[1,1],[2,1],[3,1],[1,2],[1,3]], color: 'bg-fuchsia-500', name: 'T-Shape' },
-      shape2: { coords: [[1,1],[1,2],[1,3],[1,4],[1,5]], color: 'bg-emerald-500', name: 'Column' },
-      correctAnswer: 'nothing',
+      shape1: { coords: [[1,1],[2,1],[3,1],[1,2],[1,3]], color: 'bg-fuchsia-500', name: 'L-Shape' },
+      shape2: { coords: [[1,1],[1,2],[1,3],[1,4],[1,5]], color: 'bg-emerald-500', name: 'Line' },
+      correctAnswer: 'area',
       area1: 5, area2: 5, perimeter1: 10, perimeter2: 12
     }
   ];
@@ -145,6 +151,7 @@ const ComparisonExercise: React.FC<ComparisonExerciseProps> = ({ onComplete }) =
           setSelectedAnswer(null);
           setHasSubmitted(false);
           setShowProof(false);
+          setClickedSquares({ shape1: new Set(), shape2: new Set() });
         } else {
           setPhase('completion');
         }
@@ -235,7 +242,21 @@ const ComparisonExercise: React.FC<ComparisonExerciseProps> = ({ onComplete }) =
     );
   };
 
-  const renderShape = (coords: [number, number][], color: string, showNumbers: boolean) => {
+  const handleSquareClick = (shapeKey: 'shape1' | 'shape2', coordKey: string) => {
+    if (hasSubmitted) return;
+    
+    setClickedSquares(prev => {
+      const newSet = new Set(prev[shapeKey]);
+      if (newSet.has(coordKey)) {
+        newSet.delete(coordKey);
+      } else {
+        newSet.add(coordKey);
+      }
+      return { ...prev, [shapeKey]: newSet };
+    });
+  };
+
+  const renderShape = (coords: [number, number][], color: string, showNumbers: boolean, shapeKey: 'shape1' | 'shape2') => {
     const maxX = Math.max(...coords.map(c => c[0])) + 1;
     const maxY = Math.max(...coords.map(c => c[1])) + 1;
 
@@ -245,15 +266,23 @@ const ComparisonExercise: React.FC<ComparisonExerciseProps> = ({ onComplete }) =
         {[...Array(maxY)].map((_, row) => (
           [...Array(maxX)].map((_, col) => {
             const isPartOfShape = coords.some(([x, y]) => x === col + 1 && y === row + 1);
+            const coordKey = `${col + 1}-${row + 1}`;
+            const isClicked = clickedSquares[shapeKey].has(coordKey);
+            const clickedIndex = Array.from(clickedSquares[shapeKey]).indexOf(coordKey) + 1;
             const index = coords.findIndex(([x, y]) => x === col + 1 && y === row + 1);
+            
             return (
               <div
                 key={`${col}-${row}`}
+                onClick={() => isPartOfShape && handleSquareClick(shapeKey, coordKey)}
                 className={`w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 border-2 border-white rounded transition-all duration-300 flex items-center justify-center ${
-                  isPartOfShape ? color : 'bg-white'
-                }`}
+                  isPartOfShape ? `${color} cursor-pointer hover:opacity-80 hover:scale-110` : 'bg-white'
+                } ${isClicked ? 'ring-4 ring-yellow-300' : ''}`}
                 style={showProof && showNumbers && isPartOfShape ? { animation: `scale-in 0.3s ease-out ${index * 0.1}s both` } : {}}
               >
+                {isClicked && !hasSubmitted && (
+                  <span className="text-white font-bold text-sm drop-shadow-lg">{clickedIndex}</span>
+                )}
                 {showProof && showNumbers && isPartOfShape && (
                   <span className="text-white font-bold text-sm">{index + 1}</span>
                 )}
@@ -299,17 +328,19 @@ const ComparisonExercise: React.FC<ComparisonExerciseProps> = ({ onComplete }) =
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 mb-6">
             <div className="flex flex-col items-center">
               <h3 className="text-lg font-bold text-grade-black mb-3">{question.shape1.name}</h3>
-              {renderShape(question.shape1.coords, question.shape1.color, selectedAnswer === 'area' || selectedAnswer === 'nothing')}
-              <div className="mt-3 text-sm text-grade-black">
-                Area: {question.area1} • Perimeter: {question.perimeter1}
+              {renderShape(question.shape1.coords, question.shape1.color, selectedAnswer === 'area' || selectedAnswer === 'nothing', 'shape1')}
+              <div className="mt-3 text-sm font-semibold text-grade-purple">
+                {clickedSquares.shape1.size > 0 && `Counted: ${clickedSquares.shape1.size} squares`}
+                {clickedSquares.shape1.size === 0 && 'Click squares to count!'}
               </div>
             </div>
 
             <div className="flex flex-col items-center">
               <h3 className="text-lg font-bold text-grade-black mb-3">{question.shape2.name}</h3>
-              {renderShape(question.shape2.coords, question.shape2.color, selectedAnswer === 'area' || selectedAnswer === 'nothing')}
-              <div className="mt-3 text-sm text-grade-black">
-                Area: {question.area2} • Perimeter: {question.perimeter2}
+              {renderShape(question.shape2.coords, question.shape2.color, selectedAnswer === 'area' || selectedAnswer === 'nothing', 'shape2')}
+              <div className="mt-3 text-sm font-semibold text-grade-purple">
+                {clickedSquares.shape2.size > 0 && `Counted: ${clickedSquares.shape2.size} squares`}
+                {clickedSquares.shape2.size === 0 && 'Click squares to count!'}
               </div>
             </div>
           </div>
@@ -413,6 +444,7 @@ const ComparisonExercise: React.FC<ComparisonExerciseProps> = ({ onComplete }) =
                 setSelectedAnswer(null);
                 setHasSubmitted(false);
                 setShowProof(false);
+                setClickedSquares({ shape1: new Set(), shape2: new Set() });
               }}
               className="w-full bg-grade-orange hover:bg-grade-orange/90 text-white text-xl py-6 rounded-2xl font-bold"
             >
